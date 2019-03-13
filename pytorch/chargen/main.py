@@ -17,7 +17,7 @@ train_model = True  #
 #####################
 
 path_model_save = os.path.join(project_path, "saved", "model.pt")
-rnn = RNN(n_letters, 128, n_letters)
+rnn = RNN(n_letters, 512, n_letters)
 if train_model:
     do_training(rnn, n_iters=10000)
     torch.save(rnn.state_dict(), path_model_save)

@@ -1,10 +1,10 @@
 import torch
 
-# Sample from a category and starting letter
 from pytorch.chargen.train import inputTensor, categoryTensor
 from pytorch.chargen.util import n_letters, all_letters
 
 
+# Sample from a category and starting letter
 def sample(rnn, category, start_letter='A', max_length=20):
     with torch.no_grad():  # no need to track history in sampling
         category_tensor = categoryTensor(category)

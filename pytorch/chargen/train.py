@@ -1,10 +1,11 @@
+import os
+
 import torch
 import torch.nn as nn
 import random
-from pytorch.chargen.util import all_letters, all_categories, category_lines, n_categories, n_letters
+from pytorch.chargen.util import all_letters, all_categories, category_lines, n_categories, n_letters, project_path
 import clock
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 
 
 # Random item from a list
@@ -76,7 +77,7 @@ def do_training(rnn, criterion=None, n_iters=10000, print_every=500, plot_every=
     if not criterion:
         criterion = nn.NLLLoss()
     all_losses = []
-    total_loss = 0  # Reset every plot_every iters
+    total_loss = 0
 
     watch = clock.Clock()
     watch.start()
@@ -94,5 +95,5 @@ def do_training(rnn, criterion=None, n_iters=10000, print_every=500, plot_every=
 
     plt.figure()
     plt.plot(all_losses)
-    plt.show()
+    plt.savefig(os.path.join(project_path, "saved", "train_loss.png"))
     return rnn
