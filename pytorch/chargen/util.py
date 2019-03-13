@@ -1,16 +1,17 @@
 import glob
-import math
 import os
 import string
-import time
 import unicodedata
 from io import open
 
-all_letters = string.ascii_letters + " "
+all_letters = string.ascii_letters
 n_letters = len(all_letters) + 1  # + eos
 
+project_path = os.path.dirname(__file__)
 
-def findFiles(path): return glob.glob(path)
+
+def findFiles(path):
+    return glob.glob(path)
 
 
 # Turn a Unicode string to plain ASCII, thanks to https://stackoverflow.com/a/518232/2809427
@@ -29,12 +30,15 @@ def readLines(filename):
 
 
 # Build the category_lines dictionary, a list of lines per category
-category_lines = {"blab": [
-    "blabla",
-    "blabla blabl bla",
-    "bla",
-    "blablabla blab blabla",
-    "bla blabla bla"
-]}
-all_categories = ["blab"]
+with open(os.path.join(project_path, "Chat")) as f:
+    text = f.read()
+text = text.replace("  ", " ")
+text = text.replace(" ", "\n")
+words = text.split("\n")
+words = map(str.lower, map(unicodeToAscii, filter(str.isalpha, words)))
+words = list(set(words))
+
+category_lines = {"fr": words}
+
+all_categories = list(category_lines)
 n_categories = len(all_categories)

@@ -3,6 +3,8 @@ import torch.nn as nn
 import random
 from pytorch.chargen.util import all_letters, all_categories, category_lines, n_categories, n_letters
 import clock
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 # Random item from a list
@@ -84,9 +86,13 @@ def do_training(rnn, criterion=None, n_iters=10000, print_every=500, plot_every=
         total_loss += loss
 
         if iter % print_every == 0:
-            print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_last_call(), iter, iter / n_iters * 100, loss))
+            print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iters * 100, loss))
 
         if iter % plot_every == 0:
             all_losses.append(total_loss / plot_every)
             total_loss = 0
+
+    plt.figure()
+    plt.plot(all_losses)
+    plt.show()
     return rnn
