@@ -1,32 +1,23 @@
 import os
-import unicodedata
 
-import resources.wikipedia
+import resources.wikipedia as wiki
+import util.text
 
 all_letters = "abcdefghijklmnopqrstuvwxyz"
 n_letters = len(all_letters) + 1  # + eos
 
 project_path = os.path.dirname(__file__)
 
-
-# Turn a Unicode string to plain ASCII, thanks to https://stackoverflow.com/a/518232/2809427
-def unicodeToAscii(s: str):
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', s)
-        if unicodedata.category(c) != 'Mn'
-        and c in all_letters
-    )
-
-
 # Build the category_lines dictionary, a list of lines per category
-text = resources.wikipedia.get_cleaned_text("Chat", resources.wikipedia.Lang.fr)
-text = text.replace("  ", " ")
-text = text.replace(" ", "\n")
-words = text.split("\n")
-words = map(str.lower, map(unicodeToAscii, filter(str.isalpha, words)))
-words = list(set(words))
-
-category_lines = {"fr": words}
+words = set()
+for page in wiki.default_pages[wiki.Lang.fr]:
+    text = wiki.get_cleaned_text(page, wiki.Lang.fr)
+    words_ = util.text.get_words_from_text(text)
+    words_ = map(str.lower, map(util.text.unicode_to_ascii, filter(str.isalpha, words_)))
+    words.update(list(set(words_)))
+category_lines = {"fr": list(words)}
+for cat, words in category_lines.items():
+    print(cat, ":", len(words), "words")
 
 all_categories = list(category_lines)
 n_categories = len(all_categories)
