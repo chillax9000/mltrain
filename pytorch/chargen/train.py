@@ -95,7 +95,7 @@ def do_training(rnn, criterion=None, n_iter=10000, print_every=500, plot_every=5
                 all_losses.append(total_loss / plot_every)
                 total_loss = 0
         except Exception as e:
-            print("an iteration in training went wrong:")
+            print("an training iteration went wrong:")
             print(e)
             print(random_example)
 

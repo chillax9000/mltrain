@@ -7,15 +7,15 @@ import os
 from pytorch.chargen.generate import samples
 from pytorch.chargen.model import RNN
 from pytorch.chargen.train import do_training
-from pytorch.chargen.init import n_letters, project_path, all_letters
+from pytorch.chargen.init import n_letters, project_path, all_letters, all_categories, n_categories
 import torch
 
 # True to recompute ##########
 #
 train_model = True
 
-n_iter = 1_000
-model = RNN(n_letters, 1024, n_letters)
+n_iter = 100_000
+model = RNN(n_letters, 1024, n_letters, n_categories)
 #
 ##############################
 
@@ -26,4 +26,6 @@ if train_model:
 else:
     model.load_state_dict(torch.load(path_model_save))
 
-print(samples(model, "fr", all_letters))
+for category in all_categories:
+    print(category)
+    print(samples(model, category, all_letters))
