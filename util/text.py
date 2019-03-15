@@ -29,9 +29,7 @@ def get_words_from_text(text: str) -> Iterable:
 def unicode_to_ascii(s: str):
     if 'œ' in s:
         s = s.replace('œ', 'oe')
-    ss = unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode('utf-8')
-    if len(s) != len(s):
-        print("ascii conversion warning:")
-        print(s)
-        print(ss)
-    return ss
+    s_converted = unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode('utf-8')
+    if len(s) != len(s_converted):
+        print("ascii conversion warning:", s, "->", s_converted)
+    return s_converted

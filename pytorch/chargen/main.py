@@ -10,19 +10,20 @@ from pytorch.chargen.train import do_training
 from pytorch.chargen.init import n_letters, project_path, all_letters
 import torch
 
-# True to recompute #
-                    #
-train_model = True  #
-n_iter = 1_000      #
-                    #
-#####################
+# True to recompute ##########
+#
+train_model = True
+
+n_iter = 1_000
+model = RNN(n_letters, 1024, n_letters)
+#
+##############################
 
 path_model_save = os.path.join(project_path, "saved", "model.pt")
-rnn = RNN(n_letters, 128, n_letters)
 if train_model:
-    do_training(rnn, n_iter=n_iter)
-    torch.save(rnn.state_dict(), path_model_save)
+    do_training(model, n_iter=n_iter)
+    torch.save(model.state_dict(), path_model_save)
 else:
-    rnn.load_state_dict(torch.load(path_model_save))
+    model.load_state_dict(torch.load(path_model_save))
 
-print(samples(rnn, "fr", all_letters))
+print(samples(model, "fr", all_letters))

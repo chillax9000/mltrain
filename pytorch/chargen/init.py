@@ -18,6 +18,7 @@ for page in wiki.default_pages[wiki.Lang.fr]:
 category_lines = {"fr": list(words)}
 for cat, words in category_lines.items():
     print(cat, ":", len(words), "words")
+    print(sorted(category_lines["fr"], key=len))
 
 all_categories = list(category_lines)
 n_categories = len(all_categories)

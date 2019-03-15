@@ -83,15 +83,21 @@ def do_training(rnn, criterion=None, n_iter=10000, print_every=500, plot_every=5
     watch.start()
 
     for iter in range(1, n_iter + 1):
-        output, loss = train(rnn, *randomTrainingExample(), criterion=criterion)
-        total_loss += loss
+        try:
+            random_example = randomTrainingExample()
+            output, loss = train(rnn, *random_example, criterion=criterion)
+            total_loss += loss
 
-        if iter % print_every == 0:
-            print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iter * 100, loss))
+            if iter % print_every == 0:
+                print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iter * 100, loss))
 
-        if iter % plot_every == 0:
-            all_losses.append(total_loss / plot_every)
-            total_loss = 0
+            if iter % plot_every == 0:
+                all_losses.append(total_loss / plot_every)
+                total_loss = 0
+        except Exception as e:
+            print("an iteration in training went wrong:")
+            print(e)
+            print(random_example)
 
     plt.figure()
     plt.plot(all_losses)
