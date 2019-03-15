@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import random
-from pytorch.chargen.util import all_letters, all_categories, category_lines, n_categories, n_letters, project_path
+from pytorch.chargen.init import all_letters, all_categories, category_lines, n_categories, n_letters, project_path
 import clock
 import matplotlib.pyplot as plt
 
@@ -73,7 +73,7 @@ def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion
     return output, loss.item() / input_line_tensor.size(0)
 
 
-def do_training(rnn, criterion=None, n_iters=10000, print_every=500, plot_every=500):
+def do_training(rnn, criterion=None, n_iter=10000, print_every=500, plot_every=500):
     if not criterion:
         criterion = nn.NLLLoss()
     all_losses = []
@@ -82,12 +82,12 @@ def do_training(rnn, criterion=None, n_iters=10000, print_every=500, plot_every=
     watch = clock.Clock()
     watch.start()
 
-    for iter in range(1, n_iters + 1):
+    for iter in range(1, n_iter + 1):
         output, loss = train(rnn, *randomTrainingExample(), criterion=criterion)
         total_loss += loss
 
         if iter % print_every == 0:
-            print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iters * 100, loss))
+            print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iter * 100, loss))
 
         if iter % plot_every == 0:
             all_losses.append(total_loss / plot_every)

@@ -1,0 +1,4 @@
+[x] port wiki getter to a resource package to ., and use it
+[x] char embedding model
+[x] mv pytorch/chargen/util out (what to pytorch and what to .)
+[x] generify model and training associated to be used out of pytorch

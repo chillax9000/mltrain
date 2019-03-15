@@ -1,7 +1,7 @@
 import torch
 
 from pytorch.chargen.train import inputTensor, categoryTensor
-from pytorch.chargen.util import n_letters, all_letters
+from pytorch.chargen.init import n_letters, all_letters
 
 
 # Sample from a category and starting letter
