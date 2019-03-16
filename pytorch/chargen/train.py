@@ -6,13 +6,15 @@ import random
 from pytorch.chargen.init import all_letters, all_categories, category_lines, n_categories, n_letters, project_path
 import clock
 import matplotlib.pyplot as plt
+import numpy as np
+import util.vector as vector
 
 default_device = torch.device("cpu")
 
 
 # Random item from a list
 def random_choice(l):
-    return l[random.randint(0, len(l) - 1)]
+    return l[random.randrange(0, len(l))]
 
 
 # Get a random category and random line from that category
@@ -25,17 +27,15 @@ def get_random_training_pair():
 # One-hot vector for category
 def get_category_tensor(category, device=default_device):
     li = all_categories.index(category)
-    tensor = torch.zeros(1, n_categories).to(device=device)
-    tensor[0][li] = 1
+    tensor = torch.Tensor(vector.one_hot(n_categories, li)).to(device=device)
     return tensor
 
 
 # One-hot matrix of first to last letters (not including EOS) for input
 def get_input_tensor(line, device=default_device):
-    tensor = torch.zeros(len(line), 1, n_letters).to(device=device)
-    for li in range(len(line)):
-        letter = line[li]
-        tensor[li][0][all_letters.find(letter)] = 1
+    indexes = tuple(all_letters.find(letter) for letter in line)
+    array = np.eye(n_letters)[(indexes, )]
+    tensor = torch.Tensor(array).to(device=device).unsqueeze(1)
     return tensor
 
 
