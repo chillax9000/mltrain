@@ -1,13 +1,13 @@
 import os
+import random
 
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-import random
-from pytorch.chargen.init import project_path, Data
+
 import clock
-import matplotlib.pyplot as plt
-import numpy as np
 import util.vector as vector
+from pytorch.chargen.data import project_path
 
 default_device = torch.device("cpu")
 
@@ -24,19 +24,27 @@ def get_random_training_pair(data):
     return category, line
 
 
+# Store tensors for reuse
+def create_tensors(data, device=default_device):
+    tensors = {
+        "category": {},
+        "letter": {}
+    }
+    for idx, category in enumerate(data.all_categories):
+        tensors["category"][category] = torch.Tensor(vector.one_hot(data.n_categories, idx)).to(device=device)
+    for idx, letter in enumerate(data.all_letters):
+        tensors["letter"][letter] = torch.Tensor(vector.one_hot(data.n_letters, idx)).to(device=device)
+    return tensors
+
+
 # One-hot vector for category
-def get_category_tensor(data, category, device=default_device):
-    li = data.all_categories.index(category)
-    tensor = torch.Tensor(vector.one_hot(data.n_categories, li)).to(device=device)
-    return tensor
+def get_category_tensor(tensors, category):
+    return tensors["category"][category]
 
 
 # One-hot matrix of first to last letters (not including EOS) for input
-def get_input_tensor(data, line, device=default_device):
-    indexes = tuple(data.all_letters.find(letter) for letter in line)
-    array = np.eye(data.n_letters)[(indexes, )]
-    tensor = torch.Tensor(array).to(device=device).unsqueeze(1)
-    return tensor
+def get_input_tensor(tensors, line, device=default_device):
+    return torch.cat(tuple(tensors["letter"][letter] for letter in line)).unsqueeze(1)
 
 
 # LongTensor of second letter to end (EOS) for target
@@ -47,10 +55,10 @@ def get_target_tensor(data, line, device=default_device):
 
 
 # Make category, input, and target tensors from a random category, line pair
-def random_training_example(data, device=default_device):
+def random_training_example(tensors, data, device=default_device):
     category, line = get_random_training_pair(data)
-    category_tensor = get_category_tensor(data, category, device)
-    input_line_tensor = get_input_tensor(data, line, device)
+    category_tensor = get_category_tensor(tensors, category)
+    input_line_tensor = get_input_tensor(tensors, line, device)
     target_line_tensor = get_target_tensor(data, line, device)
     return category_tensor, input_line_tensor, target_line_tensor
 
@@ -76,6 +84,8 @@ def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion
 
 
 def do_training(rnn, data, criterion=None, n_iter=10000, print_every=500, plot_every=500):
+    tensors = create_tensors(data, rnn.device)
+
     if not criterion:
         criterion = nn.NLLLoss().to(device=rnn.device)
     all_losses = []
@@ -86,7 +96,7 @@ def do_training(rnn, data, criterion=None, n_iter=10000, print_every=500, plot_e
 
     for iter in range(1, n_iter + 1):
         try:
-            random_example = random_training_example(data, rnn.device)
+            random_example = random_training_example(tensors, data, rnn.device)
             output, loss = train(rnn, *random_example, criterion=criterion)
             total_loss += loss
 

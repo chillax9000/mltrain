@@ -7,7 +7,7 @@ import os
 import torch
 
 from pytorch.chargen.generate import samples
-from pytorch.chargen.init import project_path, Data
+from pytorch.chargen.data import project_path, Data
 from pytorch.chargen.model import RNN
 from pytorch.chargen.train import do_training
 
