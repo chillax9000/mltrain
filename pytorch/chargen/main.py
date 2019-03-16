@@ -15,7 +15,9 @@ import torch
 train_model = True
 
 n_iter = 100_000
-model = RNN(n_letters, 1024, n_letters, n_categories)
+device_label = "cpu"  # cuda or cpu
+device = torch.device(device_label)
+model = RNN(n_letters, 1024, n_letters, n_categories, device)
 #
 ##############################
 
@@ -28,4 +30,4 @@ else:
 
 for category in all_categories:
     print(category)
-    print(samples(model, category, all_letters))
+    samples(model, category, all_letters)

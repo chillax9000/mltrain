@@ -1,14 +1,14 @@
 import torch
 
-from pytorch.chargen.train import inputTensor, categoryTensor
+from pytorch.chargen.train import get_input_tensor, get_category_tensor
 from pytorch.chargen.init import n_letters, all_letters
 
 
 # Sample from a category and starting letter
 def sample(rnn, category, start_letter='A', max_length=20):
     with torch.no_grad():  # no need to track history in sampling
-        category_tensor = categoryTensor(category)
-        input = inputTensor(start_letter)
+        category_tensor = get_category_tensor(category, rnn.device)
+        input = get_input_tensor(start_letter, rnn.device)
         hidden = rnn.initHidden()
 
         output_name = start_letter
@@ -22,7 +22,7 @@ def sample(rnn, category, start_letter='A', max_length=20):
             else:
                 letter = all_letters[topi]
                 output_name += letter
-            input = inputTensor(letter)
+            input = get_input_tensor(letter, rnn.device)
 
         return output_name
 
