@@ -7,28 +7,46 @@ import os
 import torch
 
 from pytorch.chargen.generate import samples
-from pytorch.chargen.init import n_letters, project_path, all_letters, all_categories, n_categories
+from pytorch.chargen.init import project_path, Data
 from pytorch.chargen.model import RNN
 from pytorch.chargen.train import do_training
 
-# True to recompute ##########
+import argparse
+
+# Default options ############
 #
 train_model = True
 
-n_iter = 1_000
-device_label = "cpu"  # cuda or cpu
-device = torch.device(device_label)
-model = RNN(n_letters, 16, n_letters, n_categories, device)
+device_label = "cpu"
 #
 ##############################
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--cuda', action='store_true', help='Use CUDA')
+parser.add_argument('--iter', help='Number of training iterations', type=int, default=1_000_000)
+parser.add_argument('--hidden', help='Number of nodes in the hidden layer', type=int, default=1024)
+
+args = parser.parse_args()
+if args.cuda:
+    if not torch.cuda.is_available():
+        print("CUDA not available on this machine")
+        exit(0)
+    device_label = "cuda"
+
+device = torch.device(device_label)
+n_iter = args.iter
+n_hidden_nodes = args.hidden
+
+data = Data()
+model = RNN(data.n_letters, n_hidden_nodes, data.n_letters, data.n_categories, device)
+
 path_model_save = os.path.join(project_path, "saved", "model.pt")
 if train_model:
-    do_training(model, n_iter=n_iter)
+    do_training(model, data, n_iter=n_iter)
     torch.save(model.state_dict(), path_model_save)
 else:
     model.load_state_dict(torch.load(path_model_save))
 
-for category in all_categories:
+for category in data.all_categories:
     print(category)
-    samples(model, category, all_letters)
+    samples(model, data, category, data.all_letters)
