@@ -26,5 +26,5 @@ class RNN(nn.Module):
         output = self.softmax(output)
         return output, hidden
 
-    def initHidden(self):
+    def init_hidden(self):
         return torch.zeros(1, self.hidden_size).to(device=self.device)

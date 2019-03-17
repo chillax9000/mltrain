@@ -65,7 +65,7 @@ def random_training_example(tensors, data, device=default_device):
 
 def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion, learning_rate=0.0005):
     target_line_tensor.unsqueeze_(-1)
-    hidden = rnn.initHidden()
+    hidden = rnn.init_hidden()
 
     rnn.zero_grad()
 

@@ -9,7 +9,7 @@ def sample(rnn, data, category, start_letter, max_length=20):
     with torch.no_grad():  # no need to track history in sampling
         category_tensor = get_category_tensor(tensors, category)
         input = get_input_tensor(tensors, start_letter, rnn.device)
-        hidden = rnn.initHidden()
+        hidden = rnn.init_hidden()
 
         output_name = start_letter
 
