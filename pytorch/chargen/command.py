@@ -34,7 +34,7 @@ class CommandConfig:
 
     @classmethod
     def default(cls):
-        return cls(train=list(CmdArg), test=list(CmdArg))
+        return cls(train=list(CmdArg), test=[CmdArg.cuda])
 
 
 def create_parser(command_config: CommandConfig = CommandConfig.default()

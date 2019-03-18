@@ -30,8 +30,15 @@ def load_args():
 path_model_save = os.path.join(project_path, "saved", "model.pt")
 mode, args = command.create_parser_and_parse()
 
-if mode == "test":
-    args = load_args()
+if mode == "test":  # reusing saved options, keeping actual command options (like cuda)
+    saved_args = load_args()
+    saved_args.update(args)
+    args = saved_args
+
+print(f"Running in mode {mode}, with args:")
+for arg, val in args.items():
+    print(arg, ":", val)
+print()
 
 device_label = "cpu"
 if args[CmdArg.cuda]:
@@ -55,6 +62,7 @@ elif mode == "test":
     model.load_state_dict(torch.load(path_model_save))
     model.eval()
     for category in data.all_categories:
+        print()
         print(category)
         # samples(model, data, category, data.all_letters)
         samples_nn_rnn(model, data, category, data.all_letters)
