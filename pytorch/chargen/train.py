@@ -64,6 +64,11 @@ def random_training_example(tensors, data, device=default_device):
     return category_tensor, input_line_tensor, target_line_tensor
 
 
+def get_input_from_category_and_line_tensors(category_tensor, line_tensor):
+    category_tensor = category_tensor.unsqueeze(1).expand(line_tensor.size(0), -1, -1)
+    return torch.cat((category_tensor, line_tensor), 2)
+
+
 def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion, learning_rate=0.0005):
     target_line_tensor.unsqueeze_(-1)
     hidden = rnn.init_hidden()
@@ -85,18 +90,17 @@ def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion
 
 
 def train_nn_rnn(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion, optimizer):
-    target_line_tensor.unsqueeze_(-1)
-
     optimizer.zero_grad()
 
-    m = nn.LogSoftmax(dim=1)
-    category_tensor = category_tensor.unsqueeze(1).expand(input_line_tensor.size(0), -1, -1)
-    output, _ = rnn(torch.cat((category_tensor, input_line_tensor), 2))
-    loss = criterion(m(output.squeeze(1)), target_line_tensor.squeeze(1))
+    input = get_input_from_category_and_line_tensors(category_tensor, input_line_tensor)
+    output, _ = rnn(input)
 
+    m = nn.LogSoftmax(dim=1)
+    loss = criterion(m(output.squeeze(1)), target_line_tensor)
     loss.backward()
 
     optimizer.step()
+
     return output, loss.item() / input_line_tensor.size(0)
 
 
