@@ -28,3 +28,13 @@ class RNN(nn.Module):
 
     def init_hidden(self):
         return torch.zeros(1, self.hidden_size).to(device=self.device)
+
+
+def get_simple_rnn(n_letters, n_categories, device=default_device):
+    net = nn.RNN(input_size=n_categories + n_letters,
+                 hidden_size=n_letters,
+                 num_layers=2,
+                 dropout=0.1
+                 ).to(device=device)
+    net.device = device
+    return net

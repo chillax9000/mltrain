@@ -6,9 +6,9 @@ import os
 
 import torch
 
-from pytorch.chargen.generate import samples
+from pytorch.chargen.generate import samples, samples_nn_rnn
 from pytorch.chargen.data import project_path, Data
-from pytorch.chargen.model import RNN
+from pytorch.chargen.model import RNN, get_simple_rnn
 from pytorch.chargen.train import do_training
 
 import argparse
@@ -38,7 +38,8 @@ n_iter = args.iter
 n_hidden_nodes = args.hidden
 
 data = Data()
-model = RNN(data.n_letters, n_hidden_nodes, data.n_letters, data.n_categories, device)
+# model = RNN(data.n_letters, n_hidden_nodes, data.n_letters, data.n_categories, device)
+model = get_simple_rnn(data.n_letters, data.n_categories, device)
 
 path_model_save = os.path.join(project_path, "saved", "model.pt")
 if train_model:
@@ -49,4 +50,5 @@ else:
 
 for category in data.all_categories:
     print(category)
-    samples(model, data, category, data.all_letters)
+    # samples(model, data, category, data.all_letters)
+    samples_nn_rnn(model, data, category, data.all_letters)

@@ -8,6 +8,7 @@ import torch.nn as nn
 import clock
 import util.vector as vector
 from pytorch.chargen.data import project_path
+import torch.optim
 
 default_device = torch.device("cpu")
 
@@ -43,7 +44,7 @@ def get_category_tensor(tensors, category):
 
 
 # One-hot matrix of first to last letters (not including EOS) for input
-def get_input_tensor(tensors, line, device=default_device):
+def get_input_tensor(tensors, line):
     return torch.cat(tuple(tensors["letter"][letter] for letter in line)).unsqueeze(1)
 
 
@@ -58,7 +59,7 @@ def get_target_tensor(data, line, device=default_device):
 def random_training_example(tensors, data, device=default_device):
     category, line = get_random_training_pair(data)
     category_tensor = get_category_tensor(tensors, category)
-    input_line_tensor = get_input_tensor(tensors, line, device)
+    input_line_tensor = get_input_tensor(tensors, line)
     target_line_tensor = get_target_tensor(data, line, device)
     return category_tensor, input_line_tensor, target_line_tensor
 
@@ -83,11 +84,29 @@ def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion
     return output, loss.item() / input_line_tensor.size(0)
 
 
-def do_training(rnn, data, criterion=None, n_iter=10000, print_every=500, plot_every=500):
-    tensors = create_tensors(data, rnn.device)
+def train_nn_rnn(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion, optimizer):
+    target_line_tensor.unsqueeze_(-1)
 
-    if not criterion:
+    optimizer.zero_grad()
+
+    m = nn.LogSoftmax(dim=1)
+    category_tensor = category_tensor.unsqueeze(1).expand(input_line_tensor.size(0), -1, -1)
+    output, hidden = rnn(torch.cat((category_tensor, input_line_tensor), 2))
+    loss = criterion(m(output.squeeze(1)), target_line_tensor.squeeze(1))
+
+    loss.backward()
+
+    optimizer.step()
+    return output, loss.item() / input_line_tensor.size(0)
+
+
+def do_training(rnn, data, criterion=None, optimizer=None, n_iter=10000, print_every=500, plot_every=500):
+    tensors = create_tensors(data, rnn.device)
+    if optimizer is None:
+        optimizer = torch.optim.Adagrad(rnn.parameters())
+    if criterion is None:
         criterion = nn.NLLLoss().to(device=rnn.device)
+
     all_losses = []
     total_loss = 0
 
@@ -97,7 +116,7 @@ def do_training(rnn, data, criterion=None, n_iter=10000, print_every=500, plot_e
     for iter in range(1, n_iter + 1):
         try:
             random_example = random_training_example(tensors, data, rnn.device)
-            output, loss = train(rnn, *random_example, criterion=criterion)
+            _, loss = train_nn_rnn(rnn, *random_example, criterion=criterion, optimizer=optimizer)
             total_loss += loss
 
             if iter % print_every == 0:
@@ -107,7 +126,7 @@ def do_training(rnn, data, criterion=None, n_iter=10000, print_every=500, plot_e
                 all_losses.append(total_loss / plot_every)
                 total_loss = 0
         except Exception as e:
-            print("an training iteration went wrong:")
+            print("a training iteration went wrong:")
             print(e)
             print(random_example)
 
