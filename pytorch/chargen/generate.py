@@ -39,7 +39,8 @@ def sample_nn_rnn(rnn, data, category, start_letter, max_length=20):
         category_tensor = get_category_tensor(tensors, category)
         input = get_input_tensor(tensors, start_letter)
         output_name = start_letter
-        output, hidden = rnn(torch.cat((category_tensor.unsqueeze(0), input), dim=2))
+
+        hidden = None
 
         for i in range(max_length):
             output, hidden = rnn(torch.cat((category_tensor.unsqueeze(0), input), dim=2), hidden)

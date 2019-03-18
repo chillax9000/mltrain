@@ -91,7 +91,7 @@ def train_nn_rnn(rnn, category_tensor, input_line_tensor, target_line_tensor, cr
 
     m = nn.LogSoftmax(dim=1)
     category_tensor = category_tensor.unsqueeze(1).expand(input_line_tensor.size(0), -1, -1)
-    output, hidden = rnn(torch.cat((category_tensor, input_line_tensor), 2))
+    output, _ = rnn(torch.cat((category_tensor, input_line_tensor), 2))
     loss = criterion(m(output.squeeze(1)), target_line_tensor.squeeze(1))
 
     loss.backward()

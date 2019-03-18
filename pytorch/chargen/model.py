@@ -30,11 +30,19 @@ class RNN(nn.Module):
         return torch.zeros(1, self.hidden_size).to(device=self.device)
 
 
-def get_simple_rnn(n_letters, n_categories, device=default_device):
-    net = nn.RNN(input_size=n_categories + n_letters,
-                 hidden_size=n_letters,
-                 num_layers=2,
-                 dropout=0.1
+class SimpleRNN(nn.Module):
+    def __init__(self, n_letters, n_categories, size_hidden, num_layers=2, dropout=0.1, device=default_device):
+        super(SimpleRNN, self).__init__()
+        self.rnn = nn.RNN(input_size=n_categories + n_letters,
+                 hidden_size=size_hidden,
+                 num_layers=num_layers,
+                 dropout=dropout
                  ).to(device=device)
-    net.device = device
-    return net
+        self.last = nn.Linear(size_hidden, n_letters).to(device=device)
+        self.device = device
+        self.size_hidden = size_hidden
+
+    def forward(self, input, hidden=None):
+        output, hidden = self.rnn(input) if hidden is None else self.rnn(input, hidden)
+        output = self.last(output)
+        return output, hidden

@@ -8,7 +8,7 @@ import torch
 
 from pytorch.chargen.generate import samples, samples_nn_rnn
 from pytorch.chargen.data import project_path, Data
-from pytorch.chargen.model import RNN, get_simple_rnn
+from pytorch.chargen.model import RNN, SimpleRNN
 from pytorch.chargen.train import do_training
 
 import argparse
@@ -35,11 +35,11 @@ if args.cuda:
 
 device = torch.device(device_label)
 n_iter = args.iter
-n_hidden_nodes = args.hidden
+size_hidden = args.hidden
 
 data = Data()
-# model = RNN(data.n_letters, n_hidden_nodes, data.n_letters, data.n_categories, device)
-model = get_simple_rnn(data.n_letters, data.n_categories, device)
+# model = RNN(data.n_letters, size_hidden, data.n_letters, data.n_categories, device)
+model = SimpleRNN(data.n_letters, data.n_categories, size_hidden, device=device)
 
 path_model_save = os.path.join(project_path, "saved", "model.pt")
 if train_model:
