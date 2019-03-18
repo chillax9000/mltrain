@@ -2,53 +2,59 @@
 
 from __future__ import unicode_literals, print_function, division
 
+import json
 import os
 
 import torch
 
-from pytorch.chargen.generate import samples, samples_nn_rnn
+from pytorch.chargen import command
+from pytorch.chargen.command import CmdArg
 from pytorch.chargen.data import project_path, Data
-from pytorch.chargen.model import RNN, SimpleRNN
+from pytorch.chargen.generate import samples_nn_rnn
+from pytorch.chargen.model import SimpleRNN
 from pytorch.chargen.train import do_training
 
-import argparse
 
-# Default options ############
-#
-train_model = True
+def save_model(model, args):
+    torch.save(model.state_dict(), path_model_save)
+    with open(os.path.join(project_path, "saved", "model_info.json"), "w") as fp:
+        json.dump({arg.name: val for arg, val in args.items()}, fp)
+
+
+def load_args():
+    with open(os.path.join(project_path, "saved", "model_info.json")) as fp:
+        str_dict = json.load(fp)
+    return {CmdArg.decode(str_arg): val for str_arg, val in str_dict.items()}
+
+
+path_model_save = os.path.join(project_path, "saved", "model.pt")
+mode, args = command.create_parser_and_parse()
+
+if mode == "test":
+    args = load_args()
 
 device_label = "cpu"
-#
-##############################
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--cuda', action='store_true', help='Use CUDA')
-parser.add_argument('--iter', help='Number of training iterations', type=int, default=1_000_000)
-parser.add_argument('--hidden', help='Number of nodes in the hidden layer', type=int, default=1024)
-
-args = parser.parse_args()
-if args.cuda:
+if args[CmdArg.cuda]:
     if not torch.cuda.is_available():
         print("CUDA not available on this machine")
         exit(0)
     device_label = "cuda"
-
 device = torch.device(device_label)
-n_iter = args.iter
-size_hidden = args.hidden
+n_iter = args[CmdArg.iter]
+size_hidden = args[CmdArg.hidden]
 
 data = Data()
 # model = RNN(data.n_letters, size_hidden, data.n_letters, data.n_categories, device)
 model = SimpleRNN(data.n_letters, data.n_categories, size_hidden, device=device)
 
-path_model_save = os.path.join(project_path, "saved", "model.pt")
-if train_model:
+if mode == "train":
     do_training(model, data, n_iter=n_iter)
-    torch.save(model.state_dict(), path_model_save)
-else:
-    model.load_state_dict(torch.load(path_model_save))
+    save_model(model, args)
 
-for category in data.all_categories:
-    print(category)
-    # samples(model, data, category, data.all_letters)
-    samples_nn_rnn(model, data, category, data.all_letters)
+elif mode == "test":
+    model.load_state_dict(torch.load(path_model_save))
+    model.eval()
+    for category in data.all_categories:
+        print(category)
+        # samples(model, data, category, data.all_letters)
+        samples_nn_rnn(model, data, category, data.all_letters)
