@@ -69,6 +69,25 @@ def get_input_from_category_and_line_tensors(category_tensor, line_tensor):
     return torch.cat((category_tensor, line_tensor), 2)
 
 
+def get_random_packed_training_examples(n_examples, tensors, data, device=default_device):
+    inputs = []
+    targets = []
+    for i in range(n_examples):
+        category, line = get_random_training_pair(data)
+        category_tensor = get_category_tensor(tensors, category)
+        line_tensor = get_input_tensor(tensors, line)
+        inputs.append(get_input_from_category_and_line_tensors(category_tensor, line_tensor))
+
+        targets.append(get_target_tensor(data, line, device))
+    inputs_sorted = sorted(inputs, key=len)
+    lengths = [len(input) for input in inputs_sorted]
+    padded_seq = nn.utils.rnn.pad_sequence(inputs_sorted)
+
+
+
+    return nn.utils.rnn.pack_padded_sequence(padded_seq, lengths)
+
+
 def train(rnn, category_tensor, input_line_tensor, target_line_tensor, criterion, learning_rate=0.0005):
     target_line_tensor.unsqueeze_(-1)
     hidden = rnn.init_hidden()
