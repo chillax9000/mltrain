@@ -19,9 +19,9 @@ def random_choice(l: List):
 
 # Build the category_lines dictionary, a list of lines per category # well, now words
 class Data:
-    def __init__(self, device=default_device, all_letters="abcdefghijklmnopqrstuvwxyz"):
-        self.all_letters = all_letters
-        self.n_letters = len(self.all_letters) + 1  # + eos
+    def __init__(self, device=default_device, all_chars="abcdefghijklmnopqrstuvwxyz"):
+        self.all_chars = all_chars
+        self.n_chars = len(self.all_chars) + 1  # + eos
         self.device = device
         self.initialize()
         self.tensors = self.create_tensors()
@@ -61,8 +61,8 @@ class Data:
         }
         for idx, category in enumerate(self.all_categories):
             tensors["category"][category] = torch.Tensor(vector.one_hot(self.n_categories, idx)).to(device=device)
-        for idx, letter in enumerate(self.all_letters):
-            tensors["char"][letter] = torch.Tensor(vector.one_hot(self.n_letters, idx)).to(device=device)
+        for idx, char in enumerate(self.all_chars):
+            tensors["char"][char] = torch.Tensor(vector.one_hot(self.n_chars, idx)).to(device=device)
         return tensors
 
     # One-hot vector for category
@@ -77,5 +77,5 @@ class Data:
         """returns a (len(line), len(char_tensor)) tensor"""
         return torch.cat(tuple(self.get_char_tensor(c).unsqueeze(0) for c in line))
 
-    def get_char_index(self, letter):
-        return self.all_letters.find(letter)
+    def get_char_index(self, char):
+        return self.all_chars.find(char)

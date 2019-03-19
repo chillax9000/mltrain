@@ -51,11 +51,11 @@ n_iter = args[CmdArg.iter]
 size_hidden = args[CmdArg.hidden]
 
 data = Data(device)
-model = RNN(data.n_letters, size_hidden, data.n_letters, data.n_categories, device)
-fun_train = train.train
-#
-# model = SimpleRNN(data.n_letters, data.n_categories, size_hidden, device=device)
-# fun_train = train.train_nn_rnn
+# model = RNN(data.n_chars, size_hidden, data.n_chars, data.n_categories, device)
+# fun_train = train.train
+
+model = SimpleRNN(data.n_chars, data.n_categories, size_hidden, device=device)
+fun_train = train.train_nn_rnn
 
 if mode == "train":
     do_training(model, data, fun_train, n_iter=n_iter)
@@ -67,5 +67,5 @@ elif mode == "test":
     for category in data.all_categories:
         print()
         print(category)
-        samples(model, data, category, data.all_letters)
-        # samples_nn_rnn(model, data, category, data.all_letters)
+        # samples(model, data, category, data.all_chars)
+        samples_nn_rnn(model, data, category, data.all_chars)

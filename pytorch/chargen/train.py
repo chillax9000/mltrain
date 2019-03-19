@@ -9,11 +9,11 @@ import clock
 from pytorch.chargen.data import project_path
 
 
-# LongTensor of second letter to end (EOS) for target
+# LongTensor of second char to end (EOS) for target
 def get_target_tensor(data, line):
-    letter_indexes = [data.get_char_index(l) for l in line[1:]]
-    letter_indexes.append(data.n_letters - 1)  # EOS
-    return torch.LongTensor(letter_indexes).to(device=data.device)
+    char_indexes = [data.get_char_index(l) for l in line[1:]]
+    char_indexes.append(data.n_chars - 1)  # EOS
+    return torch.LongTensor(char_indexes).to(device=data.device)
 
 
 def random_training_example(data):
