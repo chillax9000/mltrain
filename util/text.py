@@ -30,6 +30,6 @@ def unicode_to_ascii(s: str):
     if 'œ' in s:
         s = s.replace('œ', 'oe')
     s_converted = unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode('utf-8')
-    if len(s) != len(s_converted):
-        print("ascii conversion warning:", s, "->", s_converted)
+    # if len(s) != len(s_converted):
+    #     print("ascii conversion warning:", s, "->", s_converted)
     return s_converted

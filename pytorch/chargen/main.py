@@ -9,7 +9,7 @@ import torch
 
 from pytorch.chargen import command, train
 from pytorch.chargen.command import CmdArg
-from pytorch.chargen.data import project_path, Data
+from pytorch.chargen.data import project_path, Data, DataWord, DataSentence
 from pytorch.chargen.generate import samples_nn_rnn, samples
 from pytorch.chargen.model import SimpleRNN, RNN
 from pytorch.chargen.train import do_training
@@ -50,7 +50,7 @@ device = torch.device(device_label)
 n_iter = args[CmdArg.iter]
 size_hidden = args[CmdArg.hidden]
 
-data = Data(device)
+data = DataSentence(device)
 # model = RNN(data.n_chars, size_hidden, data.n_chars, data.n_categories, device)
 # fun_train = train.train
 

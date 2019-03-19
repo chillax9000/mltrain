@@ -92,7 +92,6 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
             print("a training iteration went wrong:")
             print(e)
             print(random_example)
-            raise e
 
     plt.figure(figsize=(20, 10))
     plt.plot(all_losses)

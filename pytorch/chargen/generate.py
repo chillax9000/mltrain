@@ -4,7 +4,7 @@ from pytorch.chargen.train import get_input_from_category_and_line_tensors
 
 
 # Sample from a category and starting char
-def sample(rnn, data, category, start_char, max_length=20):
+def sample(rnn, data, category, start_char, max_length=64):
     with torch.no_grad():  # no need to track history in sampling
         category_tensor = data.get_category_tensor(category)
         input = data.get_line_tensor(start_char)
@@ -32,7 +32,7 @@ def samples(rnn, data, category, start_chars):
         print(sample(rnn, data, category, start_char))
 
 
-def sample_nn_rnn(rnn, data, category, start_char, max_length=20):
+def sample_nn_rnn(rnn, data, category, start_char, max_length=64):
     with torch.no_grad():  # no need to track history in sampling
         category_tensor = data.get_category_tensor(category)
         line_tensor = data.get_line_tensor(start_char)
