@@ -59,7 +59,7 @@ if mode == "train":
     save_model(model, args)
 
 elif mode == "test":
-    model.load_state_dict(torch.load(path_model_save))
+    model.load_state_dict(torch.load(path_model_save, map_location=device_label))
     model.eval()
     for category in data.all_categories:
         print()
