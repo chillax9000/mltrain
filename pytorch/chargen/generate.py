@@ -1,14 +1,13 @@
 import torch
 
-from pytorch.chargen.train import get_input_tensor, get_category_tensor, create_tensors
+from pytorch.chargen.train import get_input_from_category_and_line_tensors
 
 
 # Sample from a category and starting letter
 def sample(rnn, data, category, start_letter, max_length=20):
-    tensors = create_tensors(data, rnn.device)
     with torch.no_grad():  # no need to track history in sampling
-        category_tensor = get_category_tensor(tensors, category)
-        input = get_input_tensor(tensors, start_letter)
+        category_tensor = data.get_category_tensor(category)
+        input = data.get_line_tensor(start_letter)
         hidden = rnn.init_hidden()
 
         output_name = start_letter
@@ -16,13 +15,13 @@ def sample(rnn, data, category, start_letter, max_length=20):
         for i in range(max_length):
             output, hidden = rnn(category_tensor, input[0], hidden)
             topv, topi = output.topk(1)
-            topi = topi[0][0]
+            topi = topi[0]
             if topi == data.n_letters - 1:
                 break
             else:
                 letter = data.all_letters[topi]
                 output_name += letter
-            input = get_input_tensor(tensors, letter)
+            input = data.get_line_tensor(start_letter)
 
         return output_name
 
@@ -34,16 +33,16 @@ def samples(rnn, data, category, start_letters):
 
 
 def sample_nn_rnn(rnn, data, category, start_letter, max_length=20):
-    tensors = create_tensors(data, rnn.device)
     with torch.no_grad():  # no need to track history in sampling
-        category_tensor = get_category_tensor(tensors, category)
-        input = get_input_tensor(tensors, start_letter)
+        category_tensor = data.get_category_tensor(category)
+        line_tensor = data.get_line_tensor(start_letter)
         output_name = start_letter
 
         hidden = None
 
         for i in range(max_length):
-            output, hidden = rnn(torch.cat((category_tensor.unsqueeze(0), input), dim=2), hidden)
+            input = get_input_from_category_and_line_tensors(category_tensor, line_tensor)
+            output, hidden = rnn(input, hidden)
             topv, topi = output.topk(1)
             topi = topi[0][0]
             if topi == data.n_letters - 1:
@@ -51,7 +50,7 @@ def sample_nn_rnn(rnn, data, category, start_letter, max_length=20):
             else:
                 letter = data.all_letters[topi]
                 output_name += letter
-            input = get_input_tensor(tensors, letter)
+            line_tensor = data.get_line_tensor(letter)
 
         return output_name
 

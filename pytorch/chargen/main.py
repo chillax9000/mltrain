@@ -7,11 +7,11 @@ import os
 
 import torch
 
-from pytorch.chargen import command
+from pytorch.chargen import command, train
 from pytorch.chargen.command import CmdArg
 from pytorch.chargen.data import project_path, Data
-from pytorch.chargen.generate import samples_nn_rnn
-from pytorch.chargen.model import SimpleRNN
+from pytorch.chargen.generate import samples_nn_rnn, samples
+from pytorch.chargen.model import SimpleRNN, RNN
 from pytorch.chargen.train import do_training
 
 
@@ -50,12 +50,15 @@ device = torch.device(device_label)
 n_iter = args[CmdArg.iter]
 size_hidden = args[CmdArg.hidden]
 
-data = Data()
-# model = RNN(data.n_letters, size_hidden, data.n_letters, data.n_categories, device)
-model = SimpleRNN(data.n_letters, data.n_categories, size_hidden, device=device)
+data = Data(device)
+model = RNN(data.n_letters, size_hidden, data.n_letters, data.n_categories, device)
+fun_train = train.train
+#
+# model = SimpleRNN(data.n_letters, data.n_categories, size_hidden, device=device)
+# fun_train = train.train_nn_rnn
 
 if mode == "train":
-    do_training(model, data, n_iter=n_iter)
+    do_training(model, data, fun_train, n_iter=n_iter)
     save_model(model, args)
 
 elif mode == "test":
@@ -64,5 +67,5 @@ elif mode == "test":
     for category in data.all_categories:
         print()
         print(category)
-        # samples(model, data, category, data.all_letters)
-        samples_nn_rnn(model, data, category, data.all_letters)
+        samples(model, data, category, data.all_letters)
+        # samples_nn_rnn(model, data, category, data.all_letters)
