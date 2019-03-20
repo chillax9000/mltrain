@@ -7,13 +7,13 @@ import os
 
 import torch
 
-from pytorch.chargen import command, train
-from pytorch.chargen.command import CmdArg
-from pytorch.chargen.data import project_path, Data, DataWord, DataSentence
+import command
+from command import CmdArg
+from pytorch.chargen.data import project_path
 from pytorch.chargen.generate import samples_nn_rnn, samples
-from pytorch.chargen.model import SimpleRNN, RNN
 from pytorch.chargen.train import do_training
 import pytorch.chargen.modelbuilder as modelbuilder
+from pytorch.device import get_device_label_from_args
 
 
 def save_model(model, args):
@@ -26,20 +26,6 @@ def load_args():
     with open(os.path.join(project_path, "saved", "model_info.json")) as fp:
         str_dict = json.load(fp)
     return {CmdArg.decode(str_arg): val for str_arg, val in str_dict.items()}
-
-
-def get_device_label_from_args(args):
-    device_label = "cpu"
-    if args[CmdArg.cuda]:
-        if not torch.cuda.is_available():
-            print("CUDA not available on this machine")
-            exit(0)
-        device_label = "cuda"
-    return device_label
-
-
-def get_device_from_args(args):
-    return torch.device(get_device_label_from_args(args))
 
 
 def print_models_list():
