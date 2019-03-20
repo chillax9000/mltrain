@@ -12,6 +12,9 @@ class CmdArg(enum.Enum):
     hidden = ("--hidden", {"help": 'Number of nodes in the hidden layer',
                            "type": int,
                            "default": 1024})
+    model = ("--model", {"help": "Model to train",
+                         "type": str,
+                         "default": None})
 
     def __init__(self, cmd_name, settings):
         self.cmd_name = cmd_name
@@ -37,8 +40,7 @@ class CommandConfig:
         return cls(train=list(CmdArg), test=[CmdArg.cuda])
 
 
-def create_parser(command_config: CommandConfig = CommandConfig.default()
-                  ) -> argparse.ArgumentParser:
+def create_parser(command_config: CommandConfig = CommandConfig.default()) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
@@ -52,6 +54,8 @@ def create_parser(command_config: CommandConfig = CommandConfig.default()
         parser_test.add_argument(arg.cmd_name, **arg.settings)
     parser_test.set_defaults(subparser="test")
 
+    parser_list_models = subparsers.add_parser("list")
+    parser_list_models.set_defaults(subparser="list")
     return parser
 
 

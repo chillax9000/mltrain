@@ -13,6 +13,7 @@ from pytorch.chargen.data import project_path, Data, DataWord, DataSentence
 from pytorch.chargen.generate import samples_nn_rnn, samples
 from pytorch.chargen.model import SimpleRNN, RNN
 from pytorch.chargen.train import do_training
+import pytorch.chargen.modelbuilder as modelbuilder
 
 
 def save_model(model, args):
@@ -27,42 +28,61 @@ def load_args():
     return {CmdArg.decode(str_arg): val for str_arg, val in str_dict.items()}
 
 
+def get_device_label_from_args(args):
+    device_label = "cpu"
+    if args[CmdArg.cuda]:
+        if not torch.cuda.is_available():
+            print("CUDA not available on this machine")
+            exit(0)
+        device_label = "cuda"
+    return device_label
+
+
+def get_device_from_args(args):
+    return torch.device(get_device_label_from_args(args))
+
+
+def print_models_list():
+    print("Available models:")
+    for model_name in modelbuilder.MODELS:
+        print("+", model_name)
+
+
 path_model_save = os.path.join(project_path, "saved", "model.pt")
 mode, args = command.create_parser_and_parse()
+
+if mode == "list":
+    print_models_list()
+    exit(0)
 
 if mode == "test":  # reusing saved options, keeping actual command options (like cuda)
     saved_args = load_args()
     saved_args.update(args)
     args = saved_args
 
+if not args[CmdArg.model]:
+    print(f"A model is required, specify it with option {CmdArg.model.cmd_name}")
+    print_models_list()
+    exit(0)
+builder = modelbuilder.get_model(args[CmdArg.model])
+if builder is None:
+    print(f"Could not find a model named: {args[CmdArg.model]}")
+    print_models_list()
+    exit(0)
+model, data, train_fun = builder.build(args)
+
+
 print(f"Running in mode {mode}, with args:")
 for arg, val in args.items():
     print(arg, ":", val)
 print()
 
-device_label = "cpu"
-if args[CmdArg.cuda]:
-    if not torch.cuda.is_available():
-        print("CUDA not available on this machine")
-        exit(0)
-    device_label = "cuda"
-device = torch.device(device_label)
-n_iter = args[CmdArg.iter]
-size_hidden = args[CmdArg.hidden]
-
-data = DataSentence(device)
-# model = RNN(data.n_chars, size_hidden, data.n_chars, data.n_categories, device)
-# fun_train = train.train
-
-model = SimpleRNN(data.n_chars, data.n_categories, size_hidden, device=device)
-fun_train = train.train_nn_rnn
-
 if mode == "train":
-    do_training(model, data, fun_train, n_iter=n_iter)
+    do_training(model, data, train_fun, n_iter=args[CmdArg.iter])
     save_model(model, args)
 
 elif mode == "test":
-    model.load_state_dict(torch.load(path_model_save, map_location=device_label))
+    model.load_state_dict(torch.load(path_model_save, map_location=get_device_label_from_args(args)))
     model.eval()
     for category in data.all_categories:
         print()
