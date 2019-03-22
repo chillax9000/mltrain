@@ -11,6 +11,8 @@ from clock import Clock
 
 from resources import base_path
 
+import re
+
 source_text_folder = os.path.join(base_path, "saved", "wiki")
 cleaned_text_folder = os.path.join(source_text_folder, "cleaned")
 
@@ -69,9 +71,14 @@ def get_html(word: str, lang: Lang) -> Tuple[str, str]:
     return html, source
 
 
-def clean_text(s: str) -> str:
-    s = s.replace("'", "' ")
-    return s
+def rm_footnotes_refs(text):
+    return re.sub(r"\[[0-9]*\]", "", text)
+
+
+def clean_text(text: str) -> str:
+    text = rm_footnotes_refs(text)
+    text = text.replace("'", "' ")
+    return text
 
 
 def save_cleaned_text(word: str, lang: Lang, paragraph_min_len=80):
