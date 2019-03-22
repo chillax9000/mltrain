@@ -1,7 +1,7 @@
 import collections
 import enum
 import os
-from typing import Tuple
+from typing import Tuple, Iterable
 from util.text import get_sentences_from_text
 
 import bs4
@@ -137,16 +137,14 @@ def get_all_chars(lang: Lang):
     return chars
 
 
-def get_sentences_list_from_file(lang: Lang, name: str, sentence_size: int = 32):
+def get_sentences_list_from_file(lang: Lang, name: str) -> Iterable:
     with open(lang.wiki_cleaned_text_file(name)) as f:
         text = f.read()
-    sentences = [sentence[:sentence_size] for sentence in get_sentences_from_text(text)]
-    sentences = [sentence for sentence in sentences if len(sentence) == sentence_size]
-    return sentences
+    return get_sentences_from_text(text)
 
 
-def get_sentences_list(lang: Lang, sentence_size: int = 32):
+def get_sentences_list(lang: Lang):
     sentences = []
     for name in os.listdir(lang.wiki_cleaned_text_folder):
-        sentences += get_sentences_list_from_file(lang, name, sentence_size)
+        sentences += get_sentences_list_from_file(lang, name)
     return sentences
