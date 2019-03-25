@@ -14,7 +14,10 @@ def make_print_fn(print_every, n_iter):
 
 
 def get_random_input_target(data):
-    return torch.tensor([1, 2]), torch.tensor([3])
+    indexes = data.get_trigram_indexes()
+    input_indexes = indexes[0: 2]
+    target_index = [indexes[2]]
+    return torch.tensor(input_indexes), torch.tensor(target_index)
 
 
 def train(model, input, target, criterion, optimizer):
