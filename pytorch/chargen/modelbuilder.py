@@ -48,6 +48,14 @@ def print_models_list():
     for model_name in MODELS:
         print("+", model_name)
 
+
+def build_from_args(args):
+    """returns: model, data, train_fun"""
+    if not args[CmdArg.model]:
+        raise ValueError(f"A model is required, specify it with option {CmdArg.model.cmd_name}")
+    builder = get_builder(args[CmdArg.model])
+    return builder.build(args)
+
 # MODELS #
 
 add_model("rnn-simple_words",

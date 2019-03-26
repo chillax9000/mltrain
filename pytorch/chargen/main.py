@@ -26,17 +26,12 @@ if mode == "list-dumps":
     exit(0)
 
 if mode == "train":
-    if not args[CmdArg.model]:
-        print(f"A model is required, specify it with option {CmdArg.model.cmd_name}")
-        modelbuilder.print_models_list()
-        exit(0)
     try:
-        builder = modelbuilder.get_builder(args[CmdArg.model])
-    except ValueError:
-        print(f"Could not find a model named: {args[CmdArg.model]}")
+        model, data, train_fun = modelbuilder.build_from_args(args)
+    except ValueError as e:
+        print(e)
         modelbuilder.print_models_list()
         exit(0)
-    model, data, train_fun = builder.build(args)
 
     print(f"Running in mode {mode}, with args:")
     for arg, val in args.items():
