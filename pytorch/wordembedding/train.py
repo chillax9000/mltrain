@@ -33,7 +33,7 @@ def do_training(model, data, n_iter, criterion=None, optimizer=None, print_every
     if criterion is None:
         criterion = nn.NLLLoss()
     if optimizer is None:
-        optimizer = optim.Adam(model.parameters())
+        optimizer = optim.Adagrad(model.parameters())
 
     print_fn = make_print_fn(print_every, n_iter)
 
