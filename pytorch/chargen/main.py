@@ -19,6 +19,12 @@ if mode == "list":
     modelbuilder.print_models_list()
     exit(0)
 
+if mode == "list-dumps":
+    print("Available dumps")
+    for dump in serializer.get_dumps():
+        print("+", dump)
+    exit(0)
+
 if mode == "train":
     if not args[CmdArg.model]:
         print(f"A model is required, specify it with option {CmdArg.model.cmd_name}")

@@ -59,6 +59,9 @@ def create_parser(command_config: CommandConfig = CommandConfig.default()) -> ar
 
     parser_list_models = subparsers.add_parser("list")
     parser_list_models.set_defaults(subparser="list")
+
+    parser_list_models = subparsers.add_parser("list-dumps")
+    parser_list_models.set_defaults(subparser="list-dumps")
     return parser
 
 
