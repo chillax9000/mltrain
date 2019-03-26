@@ -15,6 +15,9 @@ class CmdArg(enum.Enum):
     model = ("--model", {"help": "Model to train",
                          "type": str,
                          "default": None})
+    dump_name = ("--dump-name", {"help": "name of the folder to load",
+                                 "type": str,
+                                 "default": None})
 
     def __init__(self, cmd_name, settings):
         self.cmd_name = cmd_name
@@ -37,7 +40,7 @@ class CommandConfig:
 
     @classmethod
     def default(cls):
-        return cls(train=list(CmdArg), test=[CmdArg.cuda])
+        return cls(train=list(CmdArg), test=[CmdArg.cuda, CmdArg.dump_name])
 
 
 def create_parser(command_config: CommandConfig = CommandConfig.default()) -> argparse.ArgumentParser:
