@@ -1,4 +1,5 @@
 import string
+import torch.utils.data
 from typing import List
 
 import nltk
@@ -7,7 +8,7 @@ import numpy as np
 import resources.wikipedia as wiki
 
 
-class Data:
+class TextData:
     chars = string.ascii_letters
 
     text = wiki.get_cleaned_text("Cat", wiki.Lang.en)
@@ -47,3 +48,35 @@ class Data:
 
         selection = indexes_augmented[m: m + 3]
         return selection
+
+
+class SkipGramDataset(torch.utils.data.Dataset):
+    def __init__(self, textdata, context_size=2):
+        self.textdata = textdata
+        self.context_size = context_size
+
+        self.data = self.build_data(self.textdata)
+
+    def build_data(self, textdata):
+        data = []
+        for n in range(len(textdata.sentences)):
+            indexes = textdata.get_sentence_indexes(n)
+            ngram_position_range = range(-self.context_size, len(indexes))
+            ngrams = [self.get_ngram_tensors_at_position(position, indexes) for position in ngram_position_range]
+            data.extend(ngrams)
+        return data
+
+    def augmented_sentence_indexes(self, indexes):
+        extension = [self.textdata.index_empty_token] * self.context_size
+        return extension + indexes + extension
+
+    def get_ngram_tensors_at_position(self, position, sentence_indexes):
+        augmented_sentence = self.augmented_sentence_indexes(sentence_indexes)
+        return (torch.tensor(augmented_sentence[position + self.context_size: position + 2 * self.context_size]),
+                torch.tensor(augmented_sentence[position + 2 * self.context_size]))
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, item):
+        return self.data[item]

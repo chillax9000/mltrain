@@ -1,15 +1,16 @@
 import torch
 
 from pytorch.wordembedding.model import WordEmbSkipGram
-from pytorch.wordembedding.train import do_training
-from pytorch.wordembedding.data import Data
+from pytorch.wordembedding.train import do_training, train
+from pytorch.wordembedding.data import SkipGramDataset, TextData
 
-data = Data()
+data = TextData()
+dataset = SkipGramDataset(data)
 model = WordEmbSkipGram(vocab_size=data.vocab_size,
                         embedding_dim=16,
                         context_size=2,
                         hidden_layer_size=16)
-do_training(model, data, n_iter=10000, print_every=1000)
+do_training(model, dataset, train, n_iter=5000, print_every=1000)
 
 max_words = 16
 sentence_number = 42
@@ -19,7 +20,7 @@ prediction_index = None
 generated_indexes = context
 n_words = 0
 while prediction_index != data.index_empty_token and n_words < max_words:
-    prediction_index = model(torch.tensor(context)).topk(1)[1].item()
+    prediction_index = model(torch.tensor([context])).topk(1)[1].item()
     generated_indexes += [prediction_index]
     context = generated_indexes[-2:]
     n_words += 1

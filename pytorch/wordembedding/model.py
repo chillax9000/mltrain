@@ -20,9 +20,9 @@ class WordEmbSkipGram(nn.Module):
             nn.Linear(context_size * embedding_dim, hidden_layer_size),
             nn.ReLU(),
             nn.Linear(hidden_layer_size, vocab_size),
-            nn.LogSoftmax(dim=0))
+            nn.LogSoftmax(dim=1))
 
     def forward(self, indexes):
-        output = torch.cat(tuple(self.embedding(indexes)))
+        output = self.embedding(indexes).reshape(indexes.shape[0], 1, -1).squeeze(1)
         output = self.net(output)
         return output

@@ -1,6 +1,7 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
+import torch.utils.data
 
 
 def make_print_fn(print_every, n_iter):
@@ -23,13 +24,13 @@ def get_random_input_target(data):
 def train(model, input, target, criterion, optimizer):
     optimizer.zero_grad()
     output = model(input)
-    loss = criterion(output.unsqueeze(dim=0), target)
+    loss = criterion(output, target)
     loss.backward()
     optimizer.step()
     return loss
 
 
-def do_training(model, data, train_fun, n_iter, criterion=None, optimizer=None, print_every=-1):
+def do_training(model, dataset, train_fun, n_iter, criterion=None, optimizer=None, print_every=-1):
     if criterion is None:
         criterion = nn.NLLLoss()
     if optimizer is None:
@@ -37,8 +38,7 @@ def do_training(model, data, train_fun, n_iter, criterion=None, optimizer=None, 
 
     print_fn = make_print_fn(print_every, n_iter)
 
-    for step in range(1, n_iter + 1):
-        input, target = get_random_input_target(data)
+    for step, (input, target) in enumerate(torch.utils.data.DataLoader(dataset)):
         loss = train_fun(model, input, target, criterion, optimizer)
 
         print_fn(step, loss)
