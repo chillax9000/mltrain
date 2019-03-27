@@ -2,6 +2,7 @@ import os
 
 import matplotlib.pyplot as plt
 import torch
+import torch.utils.data
 
 import clock
 
@@ -15,12 +16,12 @@ def train(model, input, target, criterion, optimizer):
     return loss
 
 
-def do_training(model, dataloader, fun_train, model_folder_path, criterion=None, optimizer=None,
+def do_training(model, dataset, fun_train, model_folder_path, criterion=None, optimizer=None,
                 n_iter=10000, print_every=500, plot_every=500):
     if optimizer is None:
         optimizer = torch.optim.Adagrad(model.parameters())
     if criterion is None:
-        criterion = torch.nn.NLLLoss().to(device=model.device)
+        criterion = torch.nn.NLLLoss()#.to(device=model.device)
 
     all_losses = []
     total_loss = 0
@@ -28,16 +29,16 @@ def do_training(model, dataloader, fun_train, model_folder_path, criterion=None,
     watch = clock.Clock()
     watch.start()
 
-    for iter in range(1, n_iter + 1):
+    loader = LoaderWrapper(torch.utils.data.DataLoader(dataset), n_iter=n_iter)
+    for step, (input, target) in enumerate(loader):
         try:
-            input, target = dataloader()
             loss = fun_train(model, input, target, criterion=criterion, optimizer=optimizer)
             total_loss += loss
 
-            if iter % print_every == 0:
-                print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iter * 100, loss))
+            if step % print_every == 0:
+                print('%.2fs (%d%%) %.4f' % (watch.elapsed_since_start(), step / n_iter * 100, loss))
 
-            if iter % plot_every == 0:
+            if step % plot_every == 0:
                 all_losses.append(total_loss / plot_every)
                 total_loss = 0
         except Exception as e:
@@ -45,8 +46,34 @@ def do_training(model, dataloader, fun_train, model_folder_path, criterion=None,
             print(e)
             print("input:", input)
             print("target:", target)
+            raise e
 
     plt.figure(figsize=(20, 10))
     plt.plot(all_losses)
     plt.savefig(os.path.join(model_folder_path, "train_loss.png"))
     return model
+
+
+class LoaderWrapper:
+    def __init__(self, dataloader, n_iter):
+        self.n_iter = n_iter
+        self.dataloader = dataloader
+        self.iterator = iter(dataloader)
+        self.count = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        if self.count >= self.n_iter:
+            raise StopIteration
+
+        try:
+            to_return = next(self.iterator)
+        except StopIteration:
+            self.iterator = iter(self.dataloader)
+            to_return = next(self.iterator)
+
+        self.count += 1
+        return to_return
