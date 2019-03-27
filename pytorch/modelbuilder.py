@@ -98,7 +98,7 @@ add_model("word-embed-skipgram",
           ModelBuilder(model_class=pytorch.wordembedding.model.WordEmbSkipGram,
                        model_feeder=lambda args, data:(
                            (data.vocab_size, args[CmdArg.embedding], args[CmdArg.context], args[CmdArg.hidden]),
-                           {}),
+                           {"device": get_device_from_args(args)}),
                        data_class=pytorch.wordembedding.data.TextData,
                        data_feeder=lambda args: ((), {}),
                        dataset_class=pytorch.wordembedding.data.SkipGramDataset,

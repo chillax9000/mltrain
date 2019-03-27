@@ -25,7 +25,7 @@ if mode == "train":
         model, dataset, train_fun = modelbuilder.build_from_args(args)
     except ValueError as e:
         print(e)
-        modelbuilder.print_models_list()
+        modelbuilder.print_model_list()
         exit(0)
 
     print(f"Running in mode {mode}, with args:")

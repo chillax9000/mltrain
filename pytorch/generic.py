@@ -46,7 +46,6 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
             print(e)
             print("input:", input)
             print("target:", target)
-            raise e
 
     plt.figure(figsize=(20, 10))
     plt.plot(all_losses)
