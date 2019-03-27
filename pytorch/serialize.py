@@ -8,7 +8,7 @@ from operator import attrgetter
 import torch
 
 from command import CmdArg
-from pytorch.chargen import modelbuilder
+from pytorch import modelbuilder
 from pytorch.device import get_device_label_from_args
 
 
@@ -61,6 +61,7 @@ class ModelSerializer:
         return max(numbers) if numbers else 0
 
     def get_dump_paths(self, replace_last=False):
+        """returns: folder_path, model_path, json_path"""
         number = self.get_latest_dump_number() + (0 if replace_last else 1)
         model_folder_name = f"{self.model_folder_prefix}{number}"
         folder_path = os.path.join(self.project_save_path, model_folder_name)

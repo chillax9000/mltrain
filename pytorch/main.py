@@ -1,5 +1,3 @@
-# from https://pytorch.org/tutorials/intermediate/char_rnn_generation_tutorial.html
-
 from __future__ import unicode_literals, print_function, division
 
 import os
@@ -8,8 +6,7 @@ import command
 from pytorch import modelbuilder
 from command import CmdArg
 from pytorch import serialize
-from pytorch.chargen.generate import samples_nn_rnn, samples
-from pytorch.chargen.train import do_training
+from pytorch import generic
 
 serializer = serialize.ModelSerializer(os.path.dirname(__file__))
 
@@ -38,17 +35,11 @@ if mode == "train":
         print(arg, ":", val)
     print()
 
-    do_training(model, data, train_fun, n_iter=args[CmdArg.iter])
-    serializer.dump(model, args)
+    replace_last = False
+    # todo data -> dataloader
+    folder_path, _, _ = serializer.get_dump_paths(replace_last)
+    generic.do_training(model, data, train_fun, model_folder_path=folder_path, n_iter=args[CmdArg.iter])
+    serializer.dump(model, args, replace_last)
 
 if mode == "test":
-    model_folder_name = args.get(CmdArg.dump_name, None)
-    if model_folder_name is None:
-        print("Must specify a model folder to load with option --dump-name")
-        exit(0)
-    model, data, _ = serializer.load(model_folder_name, args)
-    for category in data.all_categories:
-        print()
-        print(category)
-        samples(model, data, category, data.all_chars)
-        # samples_nn_rnn(model, data, category, data.all_chars)
+    print("no test here")
