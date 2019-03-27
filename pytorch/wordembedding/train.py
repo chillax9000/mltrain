@@ -29,7 +29,7 @@ def train(model, input, target, criterion, optimizer):
     return loss
 
 
-def do_training(model, data, n_iter, criterion=None, optimizer=None, print_every=-1):
+def do_training(model, data, train_fun, n_iter, criterion=None, optimizer=None, print_every=-1):
     if criterion is None:
         criterion = nn.NLLLoss()
     if optimizer is None:
@@ -39,6 +39,6 @@ def do_training(model, data, n_iter, criterion=None, optimizer=None, print_every
 
     for step in range(1, n_iter + 1):
         input, target = get_random_input_target(data)
-        loss = train(model, input, target, criterion, optimizer)
+        loss = train_fun(model, input, target, criterion, optimizer)
 
         print_fn(step, loss)

@@ -9,9 +9,15 @@ class CmdArg(enum.Enum):
     iter = ("--iter", {"help": 'Number of training iterations',
                        "type": int,
                        "default": 1_000_000})
-    hidden = ("--hidden", {"help": 'Number of nodes in the hidden layer',
+    hidden = ("--hidden", {"help": 'Size of the hidden layer',
                            "type": int,
-                           "default": 1024})
+                           "default": 1024}),
+    embedding = ("--embedding", {"help": 'Dimension of the embedding',
+                                 "type": int,
+                                 "default": 256})
+    context = ("--context", {"help": 'Size of the context window',
+                             "type": int,
+                             "default": 2})
     model = ("--model", {"help": "Model to train",
                          "type": str,
                          "default": None})
