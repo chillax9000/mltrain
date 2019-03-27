@@ -56,10 +56,13 @@ def get_builder(name):
     return builder
 
 
-def print_models_list():
-    print("Available models:")
-    for model_name in MODELS:
-        print("+", model_name)
+def print_model_list():
+    if MODELS:
+        print("Available models:")
+        for model_name in MODELS:
+            print("+", model_name)
+    else:
+        print("No model available")
 
 
 def build_from_args(args):

@@ -8,18 +8,16 @@ from command import CmdArg
 from pytorch import serialize
 from pytorch import generic
 
-serializer = serialize.ModelSerializer(os.path.dirname(__file__))
-
 mode, args = command.create_parser_and_parse()
+replace = args[CmdArg.replace] if mode == "train" else False
+serializer = serialize.ModelSerializer(os.path.dirname(__file__), replace=replace)
 
 if mode == "list":
-    modelbuilder.print_models_list()
+    modelbuilder.print_model_list()
     exit(0)
 
 if mode == "list-dumps":
-    print("Available dumps")
-    for dump in serializer.get_dumps():
-        print("+", dump)
+    serializer.print_dump_list()
     exit(0)
 
 if mode == "train":
@@ -35,10 +33,8 @@ if mode == "train":
         print(arg, ":", val)
     print()
 
-    replace_last = False
-    folder_path, _, _ = serializer.get_dump_paths(replace_last)
-    generic.do_training(model, dataset, train_fun, model_folder_path=folder_path, n_iter=args[CmdArg.iter])
-    serializer.dump(model, args, replace_last)
+    generic.do_training(model, dataset, train_fun, model_folder_path=serializer.dump_folder_path, n_iter=args[CmdArg.iter])
+    serializer.dump(model, args)
 
 if mode == "test":
     print("no test here")

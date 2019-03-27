@@ -4,8 +4,12 @@ from typing import List
 
 
 class CmdArg(enum.Enum):
+    # flags
     cuda = ("--cuda", {"action": 'store_true',
                        "help": 'Use CUDA'})
+    replace = ("--replace", {"help": "overwrite last dump",
+                             "action": 'store_true'})
+    # valued
     iter = ("--iter", {"help": 'Number of training iterations',
                        "type": int,
                        "default": 1_000_000})
