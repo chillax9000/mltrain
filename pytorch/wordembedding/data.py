@@ -51,9 +51,10 @@ class TextData:
 
 
 class SkipGramDataset(torch.utils.data.Dataset):
-    def __init__(self, textdata, context_size=2):
+    def __init__(self, textdata, device, context_size=2):
         self.textdata = textdata
         self.context_size = context_size
+        self.device = device
 
         self.data = self.build_data(self.textdata)
 
@@ -72,8 +73,9 @@ class SkipGramDataset(torch.utils.data.Dataset):
 
     def get_ngram_tensors_at_position(self, position, sentence_indexes):
         augmented_sentence = self.augmented_sentence_indexes(sentence_indexes)
-        return (torch.tensor(augmented_sentence[position + self.context_size: position + 2 * self.context_size]),
-                torch.tensor(augmented_sentence[position + 2 * self.context_size]))
+        return (torch.tensor(augmented_sentence[position + self.context_size: position + 2 * self.context_size]
+                             ).to(device=self.device),
+                torch.tensor(augmented_sentence[position + 2 * self.context_size]).to(device=self.device))
 
     def __len__(self):
         return len(self.data)

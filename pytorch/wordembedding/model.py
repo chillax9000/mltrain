@@ -19,12 +19,12 @@ class WordEmbSkipGram(nn.Module):
         super().__init__()
         self.device = device
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.embedding = nn.Embedding(vocab_size, embedding_dim).to(device=device)
         self.net = nn.Sequential(
             nn.Linear(context_size * embedding_dim, hidden_layer_size),
             nn.ReLU(),
             nn.Linear(hidden_layer_size, vocab_size),
-            nn.LogSoftmax(dim=1))
+            nn.LogSoftmax(dim=1)).to(device=device)
 
     def forward(self, indexes):
         output = self.embedding(indexes).reshape(indexes.shape[0], 1, -1).squeeze(1)

@@ -10,13 +10,14 @@ from pytorch.device import get_device_from_args
 
 
 class ModelBuilder:
-    def __init__(self, model_class, model_feeder, data_class, data_feeder, dataset_class=None,
+    def __init__(self, model_class, model_feeder, data_class, data_feeder, dataset_class=None, dataset_feeder=None,
                  train_fun=pytorch.generic.train, serialize_name=None):
         self.model_class = model_class
         self.model_feeder = model_feeder
         self.data_class = data_class
         self.data_feeder = data_feeder
         self.dataset_class = dataset_class
+        self.dataset_feeder = dataset_feeder
         self.fun_train = train_fun
 
         self._serialize_name = serialize_name
@@ -33,7 +34,7 @@ class ModelBuilder:
     def build(self, args):
         data = self.feed(self.data_class, self.data_feeder(args))
         model = self.feed(self.model_class, self.model_feeder(args, data))
-        dataset = self.dataset_class(data)
+        dataset = self.feed(self.dataset_class, self.dataset_feeder(args, data))
 
         model._serialize_name = self._serialize_name
 
@@ -97,5 +98,6 @@ add_model("word-embed-skipgram",
                            {}),
                        data_class=pytorch.wordembedding.data.TextData,
                        data_feeder=lambda args: ((), {}),
-                       dataset_class=pytorch.wordembedding.data.SkipGramDataset,)
+                       dataset_class=pytorch.wordembedding.data.SkipGramDataset,
+                       dataset_feeder=lambda args, data: ((data, ), {"device": get_device_from_args(args)}))
           )
