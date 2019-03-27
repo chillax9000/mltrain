@@ -1,5 +1,8 @@
 import torch
+
 import torch.nn as nn
+
+default_device = torch.device("cpu")
 
 
 def get_nn(n_input, n_hidden, n_output):
@@ -12,8 +15,9 @@ def get_nn(n_input, n_hidden, n_output):
 
 
 class WordEmbSkipGram(nn.Module):
-    def __init__(self, vocab_size, embedding_dim, context_size, hidden_layer_size):
+    def __init__(self, vocab_size, embedding_dim, context_size, hidden_layer_size, device=default_device):
         super().__init__()
+        self.device = device
         self.embedding_dim = embedding_dim
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.net = nn.Sequential(

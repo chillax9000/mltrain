@@ -21,7 +21,7 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
     if optimizer is None:
         optimizer = torch.optim.Adagrad(model.parameters())
     if criterion is None:
-        criterion = torch.nn.NLLLoss()#.to(device=model.device)
+        criterion = torch.nn.NLLLoss().to(device=model.device)
 
     all_losses = []
     total_loss = 0
@@ -50,6 +50,8 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
 
     plt.figure(figsize=(20, 10))
     plt.plot(all_losses)
+    if not os.path.exists(model_folder_path):
+        os.makedirs(model_folder_path)
     plt.savefig(os.path.join(model_folder_path, "train_loss.png"))
     return model
 

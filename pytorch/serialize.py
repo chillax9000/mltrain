@@ -33,6 +33,9 @@ class ModelSerializer:
         self.model_folder_prefix = model_folder_prefix
         self.model_folder_name_regex = re.compile(self.model_folder_prefix + "[0-9]+")
 
+        if not os.path.exists(self.project_save_path):
+            os.makedirs(self.project_save_path)
+
     def is_model_folder_like_name(self, s: str):
         return re.fullmatch(self.model_folder_name_regex, s) is not None
 
@@ -108,8 +111,8 @@ class ModelSerializer:
         model_name = info["model_name"]
         builder = modelbuilder.get_builder(model_name)
         args.update(new_args)
-        model, data, train = builder.build(args)
+        model, dataset, train = builder.build(args)
         model_path = self.get_model_load_path(model_folder_name)
         model.load_state_dict(torch.load(model_path, map_location=get_device_label_from_args(args)))
         model.eval()
-        return model, data, train
+        return model, dataset, train

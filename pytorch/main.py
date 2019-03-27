@@ -24,7 +24,7 @@ if mode == "list-dumps":
 
 if mode == "train":
     try:
-        model, data, train_fun = modelbuilder.build_from_args(args)
+        model, dataset, train_fun = modelbuilder.build_from_args(args)
     except ValueError as e:
         print(e)
         modelbuilder.print_models_list()
@@ -36,9 +36,8 @@ if mode == "train":
     print()
 
     replace_last = False
-    # todo data -> dataloader
     folder_path, _, _ = serializer.get_dump_paths(replace_last)
-    generic.do_training(model, data, train_fun, model_folder_path=folder_path, n_iter=args[CmdArg.iter])
+    generic.do_training(model, dataset, train_fun, model_folder_path=folder_path, n_iter=args[CmdArg.iter])
     serializer.dump(model, args, replace_last)
 
 if mode == "test":

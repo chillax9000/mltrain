@@ -1,3 +1,4 @@
+import pytorch.generic
 import pytorch.chargen.model
 import pytorch.chargen.data
 import pytorch.chargen.train
@@ -9,12 +10,13 @@ from pytorch.device import get_device_from_args
 
 
 class ModelBuilder:
-    def __init__(self, model_class, model_feeder, data_class, data_feeder, dataloader=None, train_fun=None, serialize_name=None):
+    def __init__(self, model_class, model_feeder, data_class, data_feeder, dataset_class=None,
+                 train_fun=pytorch.generic.train, serialize_name=None):
         self.model_class = model_class
         self.model_feeder = model_feeder
         self.data_class = data_class
         self.data_feeder = data_feeder
-        self.dataloader = dataloader
+        self.dataset_class = dataset_class
         self.fun_train = train_fun
 
         self._serialize_name = serialize_name
@@ -31,8 +33,11 @@ class ModelBuilder:
     def build(self, args):
         data = self.feed(self.data_class, self.data_feeder(args))
         model = self.feed(self.model_class, self.model_feeder(args, data))
+        dataset = self.dataset_class(data)
+
         model._serialize_name = self._serialize_name
-        return model, data, self.fun_train
+
+        return model, dataset, self.fun_train
 
 
 MODELS = {}
@@ -90,7 +95,7 @@ add_model("word-embed-skipgram",
                        model_feeder=lambda args, data:(
                            (data.vocab_size, args[CmdArg.embedding], args[CmdArg.context], args[CmdArg.hidden]),
                            {}),
-                       data_class=pytorch.wordembedding.data.Data,
+                       data_class=pytorch.wordembedding.data.TextData,
                        data_feeder=lambda args: ((), {}),
-                       train_fun=pytorch.wordembedding.train)
+                       dataset_class=pytorch.wordembedding.data.SkipGramDataset,)
           )
