@@ -31,12 +31,15 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
 
     loader = LoaderWrapper(torch.utils.data.DataLoader(dataset), n_iter=n_iter)
     for step, (input, target) in enumerate(loader):
+        step += 1
         try:
             loss = fun_train(model, input, target, criterion=criterion, optimizer=optimizer)
             total_loss += loss
 
-            if step % print_every == 0:
-                print('%.2fs (%d%%) %.4f' % (watch.elapsed_since_start(), step / n_iter * 100, loss))
+            if print_every > 0 and step % print_every == 0:
+                print(f"{100 * step / n_iter:>5.1f}%: {loss:6.2f} "
+                      f"({watch.call_and_get_elapsed_since_last_call():.2f}s, "
+                      f"total {watch.get_elapsed_since_start():.2f}s)")
 
             if step % plot_every == 0:
                 all_losses.append(total_loss / plot_every)

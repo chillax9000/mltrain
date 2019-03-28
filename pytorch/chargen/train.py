@@ -83,7 +83,7 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
             total_loss += loss
 
             if iter % print_every == 0:
-                print('%.2fs (%d %d%%) %.4f' % (watch.elapsed_since_start(), iter, iter / n_iter * 100, loss))
+                print('%.2fs (%d %d%%) %.4f' % (watch.get_elapsed_since_start(), iter, iter / n_iter * 100, loss))
 
             if iter % plot_every == 0:
                 all_losses.append(total_loss / plot_every)

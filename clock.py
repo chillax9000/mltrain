@@ -13,24 +13,27 @@ class Clock:
     def silent_call(self):
         self._last_ref = time.perf_counter()
 
-    def elapsed_since_last_call(self) -> float:
+    def call_and_get_elapsed_since_last_call(self) -> float:
         now_ref = time.perf_counter()
         elapsed = now_ref - self._last_ref
         self._last_ref = now_ref
         return elapsed
 
+    def get_elapsed_since_last_call(self) -> float:
+        return time.perf_counter() - self._last_ref
+
     def print_elapsed_since_last_call(self, comment=None) -> float:
-        elapsed = self.elapsed_since_last_call()
+        elapsed = self.get_elapsed_since_last_call()
         comment = comment if comment else "elapsed since last call"
         print(comment + ":", display_time(elapsed))
         return elapsed
 
-    def elapsed_since_start(self) -> float:
+    def get_elapsed_since_start(self) -> float:
         elapsed = time.perf_counter() - self._init_ref
         return elapsed
 
     def print_elapsed_since_start(self, comment=None) -> float:
-        elapsed = self.elapsed_since_start()
+        elapsed = self.get_elapsed_since_start()
         comment = comment if comment else "elapsed since start"
         print(comment + ":", display_time(elapsed))
         return elapsed

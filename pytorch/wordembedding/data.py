@@ -1,9 +1,7 @@
-import string
-import torch.utils.data
 from typing import List
 
 import nltk
-import numpy as np
+import torch.utils.data
 
 import resources.wikipedia as wiki
 
@@ -22,9 +20,10 @@ class TextData:
         self.words = sorted(list(set(nltk_text.vocab().keys())))
         self.vocab_size = len(self.words) + 1  # adding an empty token
 
-        self.idx_word_dict = dict(enumerate(self.words))  # idx: word
-        self.index_empty_token = self.vocab_size - 1
-        self.idx_word_dict[self.index_empty_token] = "[EMPTY TOKEN]"
+        # idx: word
+        self.empty_token_idx = 0
+        self.idx_word_dict = dict(map(lambda idx_word: (idx_word[0] + 1, idx_word[1]), enumerate(self.words)))
+        self.idx_word_dict[self.empty_token_idx] = "[EMPTY TOKEN]"
 
         self.word_idx_dict = {word: idx for idx, word in self.idx_word_dict.items()}  # word: idx
 
@@ -37,15 +36,6 @@ class TextData:
     def get_sentence_indexes(self, n):
         return self.words_to_indexes(self.tokenized_sentences[n])
 
-    def get_trigram_indexes(self):
-        n = np.random.randint(len(self.sentences))
-        indexes = self.get_sentence_indexes(n)
-        m = np.random.randint(len(indexes))
-        indexes_augmented = [self.index_empty_token] * 3 + indexes + [self.index_empty_token] * 3
-
-        selection = indexes_augmented[m: m + 3]
-        return selection
-
 
 class SkipGramDataset(torch.utils.data.Dataset):
     def __init__(self, textdata, device, context_size=2):
@@ -55,7 +45,7 @@ class SkipGramDataset(torch.utils.data.Dataset):
 
         self.data = self.build_data(self.textdata)
 
-    def build_data(self, textdata):
+    def build_data(self, textdata: TextData):
         data = []
         for n in range(len(textdata.sentences)):
             indexes = textdata.get_sentence_indexes(n)
@@ -65,7 +55,7 @@ class SkipGramDataset(torch.utils.data.Dataset):
         return data
 
     def augmented_sentence_indexes(self, indexes):
-        extension = [self.textdata.index_empty_token] * self.context_size
+        extension = [self.textdata.empty_token_idx] * self.context_size
         return extension + indexes + extension
 
     def get_ngram_tensors_at_position(self, position, sentence_indexes):

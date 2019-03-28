@@ -4,7 +4,6 @@ import pytorch.chargen.data
 import pytorch.chargen.train
 import pytorch.wordembedding.model
 import pytorch.wordembedding.data
-import pytorch.wordembedding.train
 from command import CmdArg
 from pytorch.device import get_device_from_args
 
