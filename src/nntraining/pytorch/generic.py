@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
 
-import clock
+import nntraining.clock
 
 
 def train(model, input, target, criterion, optimizer):
@@ -26,7 +26,7 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
     all_losses = []
     total_loss = 0
 
-    watch = clock.Clock()
+    watch = nntraining.clock.Clock()
     watch.start()
 
     loader = LoaderWrapper(torch.utils.data.DataLoader(dataset), n_iter=n_iter)

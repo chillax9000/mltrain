@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 import torch.optim
 
-import clock
-from pytorch.chargen.data import project_path
+import nntraining.clock
+from nntraining.pytorch.chargen.data import project_path
 
 
 # LongTensor of second char to end (EOS) for target
@@ -73,7 +73,7 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
     all_losses = []
     total_loss = 0
 
-    watch = clock.Clock()
+    watch = nntraining.clock.Clock()
     watch.start()
 
     for iter in range(1, n_iter + 1):

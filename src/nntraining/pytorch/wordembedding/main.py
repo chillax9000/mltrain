@@ -2,9 +2,9 @@ import os
 
 import torch
 
-import pytorch.generic
-from pytorch.wordembedding.data import SkipGramDataset, TextData
-from pytorch.wordembedding.model import WordEmbSkipGram
+import nntraining.pytorch.generic
+from nntraining.pytorch.wordembedding.data import SkipGramDataset, TextData
+from nntraining.pytorch.wordembedding.model import WordEmbSkipGram
 
 data = TextData()
 dataset = SkipGramDataset(data)

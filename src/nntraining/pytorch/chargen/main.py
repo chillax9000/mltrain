@@ -4,16 +4,16 @@ from __future__ import unicode_literals, print_function, division
 
 import os
 
-import command
-from pytorch import modelbuilder
-from command import CmdArg
-from pytorch import serialize
-from pytorch.chargen.generate import samples_nn_rnn, samples
-from pytorch.chargen.train import do_training
+import nntraining.command
+from nntraining.pytorch import modelbuilder
+from nntraining.command import CmdArg
+from nntraining.pytorch import serialize
+from nntraining.pytorch.chargen.generate import samples_nn_rnn, samples
+from nntraining.pytorch.chargen.train import do_training
 
 serializer = serialize.ModelSerializer(os.path.dirname(__file__))
 
-mode, args = command.create_parser_and_parse()
+mode, args = nntraining.command.create_parser_and_parse()
 
 if mode == "list":
     modelbuilder.print_models_list()

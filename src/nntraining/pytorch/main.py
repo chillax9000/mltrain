@@ -2,13 +2,13 @@ from __future__ import unicode_literals, print_function, division
 
 import os
 
-import command
-from pytorch import modelbuilder
-from command import CmdArg
-from pytorch import serialize
-from pytorch import generic
+import nntraining.command
+from nntraining.pytorch import modelbuilder
+from nntraining.command import CmdArg
+from nntraining.pytorch import serialize
+from nntraining.pytorch import generic
 
-mode, args = command.create_parser_and_parse()
+mode, args = nntraining.command.create_parser_and_parse()
 replace = args[CmdArg.replace] if mode == "train" else False
 serializer = serialize.ModelSerializer(os.path.dirname(__file__), replace=replace)
 

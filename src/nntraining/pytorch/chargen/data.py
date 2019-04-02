@@ -5,9 +5,9 @@ from typing import List
 import numpy as np
 import torch
 
-import resources.wikipedia as wiki
-import util.text
-from util import vector
+import nntraining.resources.wikipedia as wiki
+import nntraining.util.text
+from nntraining.util import vector
 
 project_path = os.path.dirname(__file__)
 default_device = torch.device("cpu")
@@ -77,8 +77,8 @@ class DataWord(Data):
             words = set()
             for page in wiki.default_pages[lang]:
                 text = wiki.get_cleaned_text(page, lang)
-                words_ = util.text.get_words_from_text(text)
-                words_ = map(str.lower, map(util.text.unicode_to_ascii, filter(str.isalpha, words_)))
+                words_ = nntraining.util.text.get_words_from_text(text)
+                words_ = map(str.lower, map(nntraining.util.text.unicode_to_ascii, filter(str.isalpha, words_)))
                 words.update(list(set(words_)))
             category_lines[lang] = list(words)
 
@@ -100,9 +100,10 @@ class DataSentence(Data):
             sentences = set()
             for page in wiki.default_pages[lang]:
                 text = wiki.get_cleaned_text(page, lang)
-                sentences_ = list(util.text.get_sentences_from_text(text))
+                sentences_ = list(nntraining.util.text.get_sentences_from_text(text))
                 n_imported = len(sentences_)
-                sentences_ = list(filter(self.acceptable_input, map(str.lower, map(util.text.unicode_to_ascii, sentences_))))
+                sentences_ = list(filter(self.acceptable_input,
+                                         map(str.lower, map(nntraining.util.text.unicode_to_ascii, sentences_))))
                 print(n_imported - len(sentences_), "sentences did not meet requirements")
                 sentences.update(list(set(sentences_)))
             category_lines[lang] = list(sentences)
