@@ -12,8 +12,8 @@ model = WordEmbSkipGram(vocab_size=data.vocab_size,
                         embedding_dim=16,
                         context_size=2,
                         hidden_layer_size=16)
-pytorch.generic.do_training(model, dataset, pytorch.generic.train, os.path.dirname(__file__), n_iter=5000,
-                            print_every=1000)
+nntraining.pytorch.generic.do_training(model, dataset, nntraining.pytorch.generic.train, os.path.dirname(__file__),
+                                       n_iter=5000, print_every=1000)
 
 max_words = 16
 sentence_number = 42

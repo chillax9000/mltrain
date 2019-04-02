@@ -3,7 +3,7 @@ from typing import List
 import nltk
 import torch.utils.data
 
-import resources.wikipedia as wiki
+import nntraining.resources.wikipedia as wiki
 
 
 class TextData:

@@ -16,4 +16,9 @@ setup(
     extras_require={
         "testing": ["pytest"],
     },
+    entry_points={
+        'console_scripts': [
+            'nnt = nntraining.pytorch.main:main',
+        ]
+    }
 )
