@@ -3,12 +3,12 @@ import os
 import torch
 
 import nntraining.pytorch.generic
-from nntraining.pytorch.wordembedding.data import SkipGramDataset, TextData
+from nntraining.pytorch.wordembedding.data import SkipGramDataset, TextData, Vocab
 from nntraining.pytorch.wordembedding.model import WordEmbSkipGram
 
 data = TextData()
-dataset = SkipGramDataset(data)
-model = WordEmbSkipGram(vocab_size=data.vocab_size,
+dataset = SkipGramDataset(data, torch.device("cpu"))
+model = WordEmbSkipGram(vocab_size=data.vocab.size,
                         embedding_dim=16,
                         context_size=2,
                         hidden_layer_size=16)

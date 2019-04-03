@@ -6,8 +6,34 @@ import torch.utils.data
 import nntraining.resources.wikipedia as wiki
 
 
+class Vocab:
+    def __init__(self, words):
+        self.words = set(words)
+        self.empty_token = "[_]"
+        self.unknown_token = "[?]"
+        self.empty_idx = 0
+        self.unknown_idx = 1
+        self.itos = dict(enumerate(self.words, start=2))
+        self.itos[self.empty_idx] = self.empty_token
+        self.itos[self.unknown_idx] = self.unknown_token
+        self.stoi = {word: idx for idx, word in self.itos.items()}
+
+    @property
+    def size(self):
+        return len(self.itos)
+
+    def replace_unknown(self, word_list):
+        return [word if word in self.stoi else self.unknown_token for word in word_list]
+
+    def words_to_indexes(self, word_list: List):
+        return [self.stoi[word] for word in word_list]
+
+    def indexes_to_words(self, index_list: List):
+        return [self.itos[index] for index in index_list]
+
+
 class TextData:
-    def __init__(self, text: str = None):
+    def __init__(self, text: str = None, vocab: Vocab = None):
         self.text = text if text is not None else wiki.get_cleaned_text("Cat", wiki.Lang.en).lower()
 
         nltk.download("punkt")
@@ -15,26 +41,12 @@ class TextData:
 
         sentence_detector = nltk.data.load("tokenizers/punkt/english.pickle")
         self.sentences = sentence_detector.tokenize(self.text)
-        self.tokenized_sentences = [nltk.word_tokenize(sentence) for sentence in self.sentences]
 
-        self.words = sorted(list(set(nltk_text.vocab().keys())))
-        self.vocab_size = len(self.words) + 1  # adding an empty token
-
-        # idx: word
-        self.empty_token_idx = 0
-        self.idx_word_dict = dict(map(lambda idx_word: (idx_word[0] + 1, idx_word[1]), enumerate(self.words)))
-        self.idx_word_dict[self.empty_token_idx] = "[EMPTY TOKEN]"
-
-        self.word_idx_dict = {word: idx for idx, word in self.idx_word_dict.items()}  # word: idx
-
-    def words_to_indexes(self, word_list: List):
-        return [self.word_idx_dict[word] for word in word_list]
-
-    def indexes_to_words(self, index_list: List):
-        return [self.idx_word_dict[index] for index in index_list]
+        self.vocab = Vocab(nltk_text.vocab().keys()) if vocab is None else vocab
+        self.tokenized_sentences = list(map(self.vocab.replace_unknown, map(nltk.word_tokenize, self.sentences)))
 
     def get_sentence_indexes(self, n):
-        return self.words_to_indexes(self.tokenized_sentences[n])
+        return self.vocab.words_to_indexes(self.tokenized_sentences[n])
 
 
 class SkipGramDataset(torch.utils.data.Dataset):
@@ -55,14 +67,15 @@ class SkipGramDataset(torch.utils.data.Dataset):
         return data
 
     def augmented_sentence_indexes(self, indexes):
-        extension = [self.textdata.empty_token_idx] * self.context_size
+        extension = [self.textdata.vocab.empty_idx] * self.context_size
         return extension + indexes + extension
 
     def get_ngram_tensors_at_position(self, position, sentence_indexes):
         augmented_sentence = self.augmented_sentence_indexes(sentence_indexes)
-        return (torch.tensor(augmented_sentence[position + self.context_size: position + 2 * self.context_size]
-                             ).to(device=self.device),
-                torch.tensor(augmented_sentence[position + 2 * self.context_size]).to(device=self.device))
+        context_first_position = position + self.context_size
+        after_context_position = position + 2 * self.context_size
+        return (torch.tensor(augmented_sentence[context_first_position:after_context_position]).to(device=self.device),
+                torch.tensor(augmented_sentence[after_context_position]).to(device=self.device))
 
     def __len__(self):
         return len(self.data)
