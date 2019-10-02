@@ -7,3 +7,5 @@
 venv
 .tox
 **.egg-info
+
+.nocommit
