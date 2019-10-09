@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim
 
-import nntraining.clock
+import simpleclock.clock
 from nntraining.pytorch.chargen.data import project_path
 
 
@@ -73,8 +73,8 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
     all_losses = []
     total_loss = 0
 
-    watch = nntraining.clock.Clock()
-    watch.start()
+    clock = simpleclock.clock.Clock()
+    clock.start()
 
     for iter in range(1, n_iter + 1):
         try:
@@ -83,7 +83,7 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
             total_loss += loss
 
             if iter % print_every == 0:
-                print('%.2fs (%d %d%%) %.4f' % (watch.get_elapsed_since_start(), iter, iter / n_iter * 100, loss))
+                print('%.2fs (%d %d%%) %.4f' % (clock.elapsed_since_start.get(), iter, iter / n_iter * 100, loss))
 
             if iter % plot_every == 0:
                 all_losses.append(total_loss / plot_every)

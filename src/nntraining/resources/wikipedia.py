@@ -7,7 +7,7 @@ from nntraining.util.text import get_sentences_from_text
 import bs4
 import requests
 
-from nntraining.clock import Clock
+from simpleclock import Clock
 
 from nntraining.resources import base_path
 
@@ -110,10 +110,10 @@ def get_words_dict(wikipage: str = "France", lang: Lang = Lang.fr, paragraph_min
     clock = Clock()
     clock.start()
     html, source = get_html(wikipage, lang)
-    clock.print_elapsed_since_last_call(f"getting html from {source}")
+    clock.elapsed_since_last_call.print(f"getting html from {source}")
 
     soup = bs4.BeautifulSoup(html, "html.parser")  # slow
-    clock.print_elapsed_since_last_call("parsing html")
+    clock.elapsed_since_last_call.print("parsing html")
 
     word_counter = collections.Counter()
     for p in soup.find_all("p"):
@@ -129,7 +129,7 @@ def get_words_dict(wikipage: str = "France", lang: Lang = Lang.fr, paragraph_min
             to_del.append(word)
     for word in to_del:
         del word_counter[word]
-    clock.print_elapsed_since_last_call("parsing html")
+    clock.elapsed_since_last_call.print("parsing html")
 
     return word_counter
 

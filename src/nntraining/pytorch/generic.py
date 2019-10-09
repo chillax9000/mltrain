@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
 
-import nntraining.clock
+import simpleclock.clock
 
 
 def train(model, input, target, criterion, optimizer):
@@ -26,8 +26,8 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
     all_losses = []
     total_loss = 0
 
-    watch = nntraining.clock.Clock()
-    watch.start()
+    clock = simpleclock.clock.Clock()
+    clock.start()
 
     loader = LoaderWrapper(torch.utils.data.DataLoader(dataset), n_iter=n_iter)
     for step, (input, target) in enumerate(loader):
@@ -38,8 +38,8 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
 
             if print_every > 0 and step % print_every == 0:
                 print(f"{100 * step / n_iter:>5.1f}%: {loss:6.2f} "
-                      f"({watch.call_and_get_elapsed_since_last_call():.2f}s, "
-                      f"total {watch.get_elapsed_since_start():.2f}s)")
+                      f"({clock.elapsed_since_last_call():.2f}s, "
+                      f"total {clock.elapsed_since_start():.2f}s)")
 
             if step % plot_every == 0:
                 all_losses.append(total_loss / plot_every)
