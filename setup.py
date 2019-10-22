@@ -11,7 +11,7 @@ setup(
         'requests==2.21.0',
         'nltk==3.4',
         'numpy==1.16.1',
-        'torch==1.0.1',
+        'torch==1.3.0',
     ],
     extras_require={
         "testing": ["pytest"],
