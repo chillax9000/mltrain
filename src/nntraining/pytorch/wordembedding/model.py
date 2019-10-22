@@ -27,6 +27,6 @@ class WordEmbSkipGram(nn.Module):
             nn.LogSoftmax(dim=1)).to(device=device)
 
     def forward(self, indexes):
-        output = self.embedding(indexes).reshape(indexes.shape[0], 1, -1).squeeze(1)
+        output = self.embedding(indexes).reshape(indexes.shape[0], 1, -1).squeeze(1)  # can't directly reshape('shape_0', -1) ?
         output = self.net(output)
         return output

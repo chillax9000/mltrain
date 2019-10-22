@@ -22,10 +22,10 @@ context = data.get_sentence_indexes(sentence_number)[:2]
 prediction_index = None
 generated_indexes = context
 n_words = 0
-while prediction_index != data.empty_token_idx and n_words < max_words:
+while prediction_index != data.vocab.empty_idx and n_words < max_words:
     prediction_index = model(torch.tensor([context])).topk(1)[1].item()
     generated_indexes += [prediction_index]
     context = generated_indexes[-2:]
     n_words += 1
 
-print(" ".join(data.indexes_to_words(generated_indexes)))
+print(" ".join(data.vocab.indexes_to_words(generated_indexes)))

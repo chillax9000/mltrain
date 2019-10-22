@@ -95,7 +95,7 @@ add_model("rnn_words",
 
 add_model("word-embed-skipgram",
           ModelBuilder(model_class=nntraining.pytorch.wordembedding.model.WordEmbSkipGram,
-                       model_feeder=lambda args, data:(
+                       model_feeder=lambda args, data: (
                            (data.vocab.size, args[CmdArg.embedding], args[CmdArg.context], args[CmdArg.hidden]),
                            {"device": get_device_from_args(args)}),
                        data_class=nntraining.pytorch.wordembedding.data.TextData,
