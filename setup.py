@@ -9,7 +9,7 @@ setup(
         'beautifulsoup4==4.7.1',
         'matplotlib==3.0.3',
         'requests==2.21.0',
-        'nltk==3.4',
+        'nltk==3.4.5',
         'numpy==1.16.1',
         'torch==1.3.0',
     ],
