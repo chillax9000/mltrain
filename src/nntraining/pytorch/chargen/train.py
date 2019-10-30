@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim
 
-import simpleclock.clock
+import simpleclock
 from nntraining.pytorch.chargen.data import project_path
 
 
@@ -73,8 +73,7 @@ def do_training(rnn, data, fun_train, criterion=None, optimizer=None, n_iter=100
     all_losses = []
     total_loss = 0
 
-    clock = simpleclock.clock.Clock()
-    clock.start()
+    clock = simpleclock.Clock.started()
 
     for iter in range(1, n_iter + 1):
         try:

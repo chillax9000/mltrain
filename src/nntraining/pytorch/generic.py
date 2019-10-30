@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
 
-import simpleclock.clock
+import simpleclock
 
 
 def train(model, input, target, criterion, optimizer):
@@ -26,8 +26,7 @@ def do_training(model, dataset, fun_train, model_folder_path, criterion=None, op
     all_losses = []
     total_loss = 0
 
-    clock = simpleclock.clock.Clock()
-    clock.start()
+    clock = simpleclock.Clock.started()
 
     loader = LoaderWrapper(torch.utils.data.DataLoader(dataset), n_iter=n_iter)
     for step, (input, target) in enumerate(loader):
