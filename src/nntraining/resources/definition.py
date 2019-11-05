@@ -17,7 +17,7 @@ MAX_C = 20_000_000
 RE_XML_TO_RAW = re.compile(r"('''|===|# )")
 RE_FIND_WORD = re.compile(r"^'''([^']*)'''")
 RE_FIND_LINK = re.compile(r"\[\[(?P<link>[^|\]]+)\|?(?P<text>[^|\]]+)?\]\]")
-RE_FIND_GRAMMAR = re.compile(r"^=== {{S\|([^|}]*)\|fr}} ===")
+RE_FIND_GRAMMAR = re.compile(r"^=== {{S\|([^|}]*)\|.*fr(}}|\|.*}}) ===")
 RE_FIND_CAT = re.compile(r"\{\{(.+?)\}\}")
 RE_FIND_FICHIER = re.compile(r"\[\[(Fichier|File|Image):.*?\]\]")
 
@@ -56,7 +56,7 @@ def delete_fichiers(line):
 
 
 def check_start_def(line):
-    return line.startswith("=== {{S") and line.endswith("fr}} ===\n")
+    return RE_FIND_GRAMMAR.match(line) is not None
 
 
 def check_in_def(line, in_def):
@@ -97,7 +97,6 @@ def prune_raw(input_path, output_path, max_lines_w=MAX_C):
 def refine_pruned(input_path, output_path, max_lines_w=MAX_C):
     with open(input_path, "r") as f_r, open(output_path, "w") as f_w:
         _count = 0
-        missed = 0
         writing_defs = False
         word = None
         grammatical_cat = None
@@ -136,10 +135,10 @@ def refine_pruned(input_path, output_path, max_lines_w=MAX_C):
             _count += 1
             if _count > max_lines_w:
                 break
-        print("missed:", missed)
+        print("missed:", len(unknown_errors))
 
 
-def read_refined(input_path):
+def read_refined(input_path, max_words=None):
     def read_header(stripped_line):
         return tuple(map(str.strip, stripped_line[2:].split("||")))
 
@@ -153,6 +152,9 @@ def read_refined(input_path):
                 if word != "None" and gram_type != "None":
                     definition = json.loads(line)
                     words[(word, gram_type)].append(definition)
+            if max_words:
+                if len(words) > max_words:
+                    break
     return words
 
 
