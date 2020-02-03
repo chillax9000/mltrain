@@ -5,14 +5,17 @@ import requests
 import re
 import os
 import pandas as pd
+import time
+import random
 
-
+url_lookup = ""
 url_reviews_template = ""
-saved_html_path = os.path.join(os.path.dirname(__file__), "ac_test_saved")
-saved_data_path = os.path.join(os.path.dirname(__file__), "ac_saved_data")
+saved_data_path = os.path.join(os.path.dirname(__file__), "cine_critiques_presse.csv")
+
+RE_PRESSREVIEW = re.compile("pressreview")
+RE_IDS = re.compile(r"([0-9]*).html")
 
 COLUMNS = ["id", "titre", "note", "critique"]
-RE_PRESSREVIEW = re.compile("pressreview")
 
 
 def empty_data():
@@ -61,26 +64,55 @@ def process_review_html(html, df_data):
     movie_title = extract_title(soup)
     print(f"processing movie: {movie_title}, id: {movie_id}")
     review_tags = list(soup.find_all("div", id=RE_PRESSREVIEW))
+    if len(review_tags) == 0:
+        print("no review found...")
     stars_and_reviews = [(extract_note(tag), extract_text(tag)) for tag in review_tags]
     df = data_to_df(movie_id, movie_title, stars_and_reviews)
     return df_data.append(df)
 
 
-def get_movie_ids():
-    return []
+def get_movie_ids(n):
+    resp = requests.get(url_lookup.format(n=n))
+    return map(int, RE_IDS.findall(resp.text)) if resp.ok else []
 
 
 if __name__ == "__main__":
     df_saved_data = get_saved_data()
-    ids = get_movie_ids()
     df_data = empty_data()
-    for movie_id in ids:
-        if movie_id in df_saved_data["id"].values:
-            print(f"{movie_id} already in base")
-        else:
-            resp = requests.get(url_reviews_template.format(movie_id=movie_id))
-            if resp.ok:
-                html = resp.text
-                df_data = process_review_html(html, df_data)
+    known_ids = set(df_saved_data["id"].values)
+    AUTOSAVE_EVERY = 5
+    autosave_counter = 0
 
-    save_data(df_saved_data.append(df_data))
+    for n in range(5, 97):
+        id_batch = set(get_movie_ids(n))
+        print(f"checking {len(id_batch)} movies")
+        for movie_id in id_batch:
+            if movie_id in known_ids:
+                print(f"{movie_id} already in base")
+            else:
+                known_ids.add(movie_id)
+                resp = requests.get(url_reviews_template.format(movie_id=movie_id))
+                if resp.ok:
+                    html = resp.text
+                    df_data = process_review_html(html, df_data)
+                    autosave_counter += 1
+                elif resp.status_code == 403:
+                    print("leaving...")
+                    break
+                else:
+                    print(f"status code: {resp.status_code}")
+
+                if autosave_counter >= AUTOSAVE_EVERY:
+                    print("autosave")
+                    save_data(df_saved_data.append(df_data))
+                    df_saved_data = get_saved_data()
+                    df_data = empty_data()
+                    autosave_counter = 0
+
+                t_sleep = random.randint(1402, 3105) / 100
+                print(f"waiting {t_sleep: .2f}s")
+                time.sleep(t_sleep)
+
+    if autosave_counter > 0:
+        print("saving before exiting")
+        save_data(df_saved_data.append(df_data))
