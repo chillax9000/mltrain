@@ -1,12 +1,14 @@
 import operator
+import shutil
 
 import bs4
-import requests
+import nntraining.resources.anonsess
 import re
 import os
 import pandas as pd
 import time
 import random
+import simpleclock
 
 url_lookup = ""
 url_reviews_template = ""
@@ -31,6 +33,10 @@ def get_saved_data():
 
 def save_data(df: pd.DataFrame):
     df.to_csv(saved_data_path, index=False)
+
+
+def backup_data():
+    shutil.copyfile(saved_data_path, os.path.join(saved_data_path + ".bckp"))
 
 
 def data_to_df(movie_id, title, stars_and_reviews):
@@ -71,48 +77,60 @@ def process_review_html(html, df_data):
     return df_data.append(df)
 
 
-def get_movie_ids(n):
-    resp = requests.get(url_lookup.format(n=n))
+def get_movie_ids(n, session):
+    resp = session.get(url_lookup.format(n=n))
     return map(int, RE_IDS.findall(resp.text)) if resp.ok else []
 
 
 if __name__ == "__main__":
+    clock = simpleclock.Clock.started()
+    session = nntraining.resources.anonsess.get_session()
+
     df_saved_data = get_saved_data()
     df_data = empty_data()
     known_ids = set(df_saved_data["id"].values)
-    AUTOSAVE_EVERY = 5
+    AUTOSAVE_EVERY = 10
+    BACKUP_EVERY = 50
     autosave_counter = 0
+    backup_counter = 0
 
-    for n in range(5, 97):
-        id_batch = set(get_movie_ids(n))
-        print(f"checking {len(id_batch)} movies")
+    for n in range(305, 500):
+        id_batch = set(get_movie_ids(n, session))
+        print(f"checking {len(id_batch)} movies, ({n})")
         for movie_id in id_batch:
             if movie_id in known_ids:
                 print(f"{movie_id} already in base")
             else:
                 known_ids.add(movie_id)
-                resp = requests.get(url_reviews_template.format(movie_id=movie_id))
+                resp = session.get(url_reviews_template.format(movie_id=movie_id))
                 if resp.ok:
                     html = resp.text
                     df_data = process_review_html(html, df_data)
                     autosave_counter += 1
+                    backup_counter += 1
+                    if autosave_counter >= AUTOSAVE_EVERY:
+                        print("autosave...")
+                        autosave_counter = 0
+                        save_data(df_saved_data.append(df_data))
+                        df_saved_data = get_saved_data()
+                        df_data = empty_data()
+                    if backup_counter >= BACKUP_EVERY:
+                        print("backup...")
+                        backup_counter = 0
+                        backup_data()
                 elif resp.status_code == 403:
                     print("leaving...")
                     break
                 else:
                     print(f"status code: {resp.status_code}")
 
-                if autosave_counter >= AUTOSAVE_EVERY:
-                    print("autosave")
-                    save_data(df_saved_data.append(df_data))
-                    df_saved_data = get_saved_data()
-                    df_data = empty_data()
-                    autosave_counter = 0
-
-                t_sleep = random.randint(1402, 3105) / 100
+                t_sleep = random.randint(200, 800) / 100
                 print(f"waiting {t_sleep: .2f}s")
                 time.sleep(t_sleep)
+        print()
 
     if autosave_counter > 0:
         print("saving before exiting")
         save_data(df_saved_data.append(df_data))
+
+    clock.elapsed_since_start.print("Total time")
