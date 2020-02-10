@@ -13,6 +13,7 @@ import simpleclock
 url_lookup = ""
 url_reviews_template = ""
 saved_data_path = os.path.join(os.path.dirname(__file__), "cine_critiques_presse.csv")
+info_path = os.path.join(os.path.dirname(__file__), "cine_info.txt")
 
 RE_PRESSREVIEW = re.compile("pressreview")
 RE_IDS = re.compile(r"([0-9]*).html")
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     autosave_counter = 0
     backup_counter = 0
 
-    for n in range(305, 500):
+    for n in range(1, 100):
         id_batch = set(get_movie_ids(n, session))
         print(f"checking {len(id_batch)} movies, ({n})")
         for movie_id in id_batch:
@@ -114,6 +115,8 @@ if __name__ == "__main__":
                         save_data(df_saved_data.append(df_data))
                         df_saved_data = get_saved_data()
                         df_data = empty_data()
+                        with open(info_path, "w") as f:
+                            f.write(f"last page: {n}")
                     if backup_counter >= BACKUP_EVERY:
                         print("backup...")
                         backup_counter = 0
@@ -124,7 +127,7 @@ if __name__ == "__main__":
                 else:
                     print(f"status code: {resp.status_code}")
 
-                t_sleep = random.randint(200, 800) / 100
+                t_sleep = random.randint(100, 1000) / 100
                 print(f"waiting {t_sleep: .2f}s")
                 time.sleep(t_sleep)
         print()
