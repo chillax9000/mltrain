@@ -9,6 +9,13 @@ import pandas as pd
 import time
 import random
 import simpleclock
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler("cinedatabuilder.log")
+handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 
 url_lookup = ""
 url_reviews_template = ""
@@ -66,22 +73,31 @@ def extract_text(tag):
     return tag.find("p").text.strip()
 
 
-def process_review_html(html, df_data):
+def process_review_html(html, movie_id, df_data):
     soup = bs4.BeautifulSoup(html, "html.parser")
     movie_title = extract_title(soup)
-    print(f"processing movie: {movie_title}, id: {movie_id}")
     review_tags = list(soup.find_all("div", id=RE_PRESSREVIEW))
-    if len(review_tags) == 0:
-        print("no review found...")
+    _n = len(review_tags)
+    logger.info(f"found {_n} review(s)" if _n > 0 else "no review found...")
     stars_and_reviews = [(extract_note(tag), extract_text(tag)) for tag in review_tags]
     df = data_to_df(movie_id, movie_title, stars_and_reviews)
     return df_data.append(df)
 
 
-def get_movie_ids(n, session):
-    resp = session.get(url_lookup.format(n=n))
-    return map(int, RE_IDS.findall(resp.text)) if resp.ok else []
+def iter_urls(ns, **kwargs):
+    for n in ns:
+        resp = session.get(url_lookup.format(n=n))
+        landmark = n
+        yield from (map(lambda s: (url_reviews_template.format(movie_id=s),
+            int(s), landmark), RE_IDS.findall(resp.text)) if resp.ok else [])
 
+def sleep_duration():
+    return random.randint(100, 1000) / 100
+
+
+AUTOSAVE_EVERY = 10
+BACKUP_EVERY = 50
+PAGES = range(1, 100)
 
 if __name__ == "__main__":
     clock = simpleclock.Clock.started()
@@ -90,50 +106,45 @@ if __name__ == "__main__":
     df_saved_data = get_saved_data()
     df_data = empty_data()
     known_ids = set(df_saved_data["id"].values)
-    AUTOSAVE_EVERY = 10
-    BACKUP_EVERY = 50
     autosave_counter = 0
     backup_counter = 0
 
-    for n in range(1, 100):
-        id_batch = set(get_movie_ids(n, session))
-        print(f"checking {len(id_batch)} movies, ({n})")
-        for movie_id in id_batch:
-            if movie_id in known_ids:
-                print(f"{movie_id} already in base")
+    for url, url_id, landmark in iter_urls(PAGES):
+        if url_id in known_ids:
+            logger.info(f"{url_id} already in base")
+        else:
+            logger.info(f"processing {url_id} ({url})")
+            known_ids.add(url_id)
+            resp = session.get(url)
+            if resp.ok:
+                html = resp.text
+                df_data = process_review_html(html, url_id, df_data)
+                autosave_counter += 1
+                backup_counter += 1
+                if autosave_counter >= AUTOSAVE_EVERY:
+                    logger.info("autosave...")
+                    autosave_counter = 0
+                    save_data(df_saved_data.append(df_data))
+                    df_saved_data = get_saved_data()
+                    df_data = empty_data()
+                    with open(info_path, "w") as f:
+                        f.write(f"last page: {landmark}")
+                if backup_counter >= BACKUP_EVERY:
+                    logger.info("backup...")
+                    backup_counter = 0
+                    backup_data()
+            elif resp.status_code == 403:
+                logger.info("leaving...")
+                break
             else:
-                known_ids.add(movie_id)
-                resp = session.get(url_reviews_template.format(movie_id=movie_id))
-                if resp.ok:
-                    html = resp.text
-                    df_data = process_review_html(html, df_data)
-                    autosave_counter += 1
-                    backup_counter += 1
-                    if autosave_counter >= AUTOSAVE_EVERY:
-                        print("autosave...")
-                        autosave_counter = 0
-                        save_data(df_saved_data.append(df_data))
-                        df_saved_data = get_saved_data()
-                        df_data = empty_data()
-                        with open(info_path, "w") as f:
-                            f.write(f"last page: {n}")
-                    if backup_counter >= BACKUP_EVERY:
-                        print("backup...")
-                        backup_counter = 0
-                        backup_data()
-                elif resp.status_code == 403:
-                    print("leaving...")
-                    break
-                else:
-                    print(f"status code: {resp.status_code}")
+                logger.info(f"status code: {resp.status_code}")
 
-                t_sleep = random.randint(100, 1000) / 100
-                print(f"waiting {t_sleep: .2f}s")
-                time.sleep(t_sleep)
-        print()
+            t_sleep = sleep_duration()
+            logger.info(f"pause: {t_sleep:.2f}s")
+            time.sleep(t_sleep)
 
     if autosave_counter > 0:
-        print("saving before exiting")
+        logger.info("saving before exiting")
         save_data(df_saved_data.append(df_data))
 
     clock.elapsed_since_start.print("Total time")
