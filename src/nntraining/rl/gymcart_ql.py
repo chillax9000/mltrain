@@ -6,6 +6,8 @@ import numpy as np
 import operator
 import pprint
 
+rng = np.random.default_rng()
+
 
 def get_state(obs, mins, maxs):
     return tuple((10 * ((obs - mins) / (maxs - mins))).astype(int))
@@ -17,12 +19,14 @@ def update_minmax(obs, mins, maxs):
 
 
 def policy(state, values, action_space):
-    choices = [(action, values[(state, action)]) for action in action_space]
-    return sorted(choices, key=operator.itemgetter(1), reverse=True)[0][0]
+    actions = list(range(action_space.n))
+    choices = [(action, values[(state, action)]) for action in actions]
+    action_max = sorted(choices, key=operator.itemgetter(1), reverse=True)[0][0]
+    return action_max if rng.random(1) < .5 else action_space.sample()
 
 
-alpha = .1
-gamma = .1
+alpha = .01
+gamma = .05
 values = collections.defaultdict(lambda: 0)
 
 history = []
@@ -32,7 +36,7 @@ maxs = np.array([1, 1, 1, 1])
 
 lengths = []
 env = gym.make('CartPole-v0')
-for i_episode in range(100):
+for i_episode in range(1000):
     # init
     observation = env.reset()
     state = get_state(observation, *update_minmax(observation, mins, maxs))
@@ -41,12 +45,13 @@ for i_episode in range(100):
         # time.sleep(.01)
 
         # compute
-        action = policy(state, values, [0, 1])
+        action = policy(state, values, env.action_space)
         observation, reward, done, info = env.step(action)
 
         # update value
         next_state = get_state(observation, *update_minmax(observation, mins, maxs))
-        next_values = [values[(next_state, action)] for action in [0, 1]]
+        actions = list(range(env.action_space.n))
+        next_values = [values[(next_state, action)] for action in actions]
         values[(state, action)] += \
             alpha * (reward + gamma * max(next_values) - values[state])
         state = next_state
