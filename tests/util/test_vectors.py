@@ -1,4 +1,4 @@
-from nntraining.util import vector
+from mlt.util import vector
 import numpy as np
 
 

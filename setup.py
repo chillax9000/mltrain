@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="nntraining",
+    name="mlt",
     version="0",
     packages=find_packages("src"),
     package_dir={"":"src"},
@@ -18,7 +18,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'nnt = nntraining.pytorch.main:main',
+            'nnt = mlt.pytorch.main:main',
         ]
     }
 )

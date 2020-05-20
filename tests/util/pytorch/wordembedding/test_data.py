@@ -1,6 +1,6 @@
 import torch
 
-from nntraining.pytorch.wordembedding.data import SkipGramDataset, TextData
+from mlt.pytorch.wordembedding.data import SkipGramDataset, TextData
 
 text = """
 The sky is blue.

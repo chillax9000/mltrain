@@ -1,16 +1,16 @@
-import nntraining.pytorch.generic
-import nntraining.pytorch.chargen.model
-import nntraining.pytorch.chargen.data
-import nntraining.pytorch.chargen.train
-import nntraining.pytorch.wordembedding.model
-import nntraining.pytorch.wordembedding.data
-from nntraining.command import CmdArg
-from nntraining.pytorch.device import get_device_from_args
+import mlt.pytorch.generic
+import mlt.pytorch.chargen.model
+import mlt.pytorch.chargen.data
+import mlt.pytorch.chargen.train
+import mlt.pytorch.wordembedding.model
+import mlt.pytorch.wordembedding.data
+from mlt.command import CmdArg
+from mlt.pytorch.device import get_device_from_args
 
 
 class ModelBuilder:
     def __init__(self, model_class, model_feeder, data_class, data_feeder, dataset_class=None, dataset_feeder=None,
-                 train_fun=nntraining.pytorch.generic.train, serialize_name=None):
+                 train_fun=mlt.pytorch.generic.train, serialize_name=None):
         self.model_class = model_class
         self.model_feeder = model_feeder
         self.data_class = data_class
@@ -75,31 +75,31 @@ def build_from_args(args):
 # MODELS #
 
 add_model("rnn-simple_words",
-          ModelBuilder(model_class=nntraining.pytorch.chargen.model.SimpleRNN,
+          ModelBuilder(model_class=mlt.pytorch.chargen.model.SimpleRNN,
                        model_feeder=lambda args, data: ((data.n_chars, data.n_categories, args[CmdArg.hidden]),
                                                         {"device": get_device_from_args(args)}),
-                       data_class=nntraining.pytorch.chargen.data.DataWord,
+                       data_class=mlt.pytorch.chargen.data.DataWord,
                        data_feeder=lambda args: ((get_device_from_args(args),), {}),
-                       train_fun=nntraining.pytorch.chargen.train.train_nn_rnn)
+                       train_fun=mlt.pytorch.chargen.train.train_nn_rnn)
           )
 
 add_model("rnn_words",
-          ModelBuilder(model_class=nntraining.pytorch.chargen.model.RNN,
+          ModelBuilder(model_class=mlt.pytorch.chargen.model.RNN,
                        model_feeder=lambda args, data: (
                            (data.n_chars, args[CmdArg.hidden], data.n_chars, data.n_categories),
                            {"device": get_device_from_args(args)}),
-                       data_class=nntraining.pytorch.chargen.data.DataWord,
+                       data_class=mlt.pytorch.chargen.data.DataWord,
                        data_feeder=lambda args: ((get_device_from_args(args),), {}),
-                       train_fun=nntraining.pytorch.chargen.train.train)
+                       train_fun=mlt.pytorch.chargen.train.train)
           )
 
 add_model("word-embed-skipgram",
-          ModelBuilder(model_class=nntraining.pytorch.wordembedding.model.WordEmbSkipGram,
+          ModelBuilder(model_class=mlt.pytorch.wordembedding.model.WordEmbSkipGram,
                        model_feeder=lambda args, data: (
                            (data.vocab.size, args[CmdArg.embedding], args[CmdArg.context], args[CmdArg.hidden]),
                            {"device": get_device_from_args(args)}),
-                       data_class=nntraining.pytorch.wordembedding.data.TextData,
+                       data_class=mlt.pytorch.wordembedding.data.TextData,
                        data_feeder=lambda args: ((), {}),
-                       dataset_class=nntraining.pytorch.wordembedding.data.SkipGramDataset,
+                       dataset_class=mlt.pytorch.wordembedding.data.SkipGramDataset,
                        dataset_feeder=lambda args, data: ((data, ), {"device": get_device_from_args(args)}))
           )

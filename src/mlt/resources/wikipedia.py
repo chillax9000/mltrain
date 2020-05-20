@@ -2,14 +2,14 @@ import collections
 import enum
 import os
 from typing import Tuple, Iterable
-from nntraining.util.text import get_sentences_from_text
+from mlt.util.text import get_sentences_from_text
 
 import bs4
 import requests
 
 from simpleclock import Clock
 
-from nntraining.resources import base_path
+from mlt.resources import base_path
 
 import re
 

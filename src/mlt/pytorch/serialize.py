@@ -7,9 +7,9 @@ from operator import attrgetter
 
 import torch
 
-from nntraining.command import CmdArg
-from nntraining.pytorch import modelbuilder
-from nntraining.pytorch.device import get_device_label_from_args
+from mlt.command import CmdArg
+from mlt.pytorch import modelbuilder
+from mlt.pytorch.device import get_device_label_from_args
 
 
 def build_model_info_dict(model):

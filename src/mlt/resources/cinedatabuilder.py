@@ -2,7 +2,7 @@ import operator
 import shutil
 
 import bs4
-import nntraining.resources.anonsess
+import mlt.resources.anonsess
 import re
 import os
 import pandas as pd
@@ -101,7 +101,7 @@ PAGES = range(1, 100)
 
 if __name__ == "__main__":
     clock = simpleclock.Clock.started()
-    session = nntraining.resources.anonsess.get_session()
+    session = mlt.resources.anonsess.get_session()
 
     df_saved_data = get_saved_data()
     df_data = empty_data()

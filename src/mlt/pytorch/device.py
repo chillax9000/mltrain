@@ -1,6 +1,6 @@
 import torch
 
-from nntraining.command import CmdArg
+from mlt.command import CmdArg
 
 
 def get_device_label_from_args(args):

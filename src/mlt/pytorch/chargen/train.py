@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim
 
 import simpleclock
-from nntraining.pytorch.chargen.data import project_path
+from mlt.pytorch.chargen.data import project_path
 
 
 # LongTensor of second char to end (EOS) for target
