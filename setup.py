@@ -6,12 +6,14 @@ setup(
     package_dir={"":"src"},
 
     install_requires=[  
-        'beautifulsoup4==4.7.1',
-        'matplotlib==3.0.3',
-        'requests==2.21.0',
-        'nltk==3.4.5',
-        'numpy==1.16.1',
-        'torch==1.3.0',
+        'beautifulsoup4==4.9.1',
+        'gym==0.17.2',
+        'jupyter==1.0.0',
+        'matplotlib==3.2.1',
+        'nltk==3.5',
+        'numpy==1.18.4',
+        'requests==2.23.0',
+        'scikit-learn==0.23.1',
     ],
     extras_require={
         "testing": ["pytest"],
