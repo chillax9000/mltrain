@@ -1,6 +1,6 @@
 import torch
 
-from mlt.command import CmdArg
+from ml.command import CmdArg
 
 
 def get_device_label_from_args(args):

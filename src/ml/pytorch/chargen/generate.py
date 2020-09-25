@@ -1,6 +1,6 @@
 import torch
 
-from mlt.pytorch.chargen.train import get_input_from_category_and_line_tensors
+from ml.pytorch.chargen.train import get_input_from_category_and_line_tensors
 
 
 # Sample from a category and starting char

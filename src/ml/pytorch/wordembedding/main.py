@@ -2,9 +2,9 @@ import os
 
 import torch
 
-import mlt.pytorch.generic
-from mlt.pytorch.wordembedding.data import SkipGramDataset, TextData, Vocab
-from mlt.pytorch.wordembedding.model import WordEmbSkipGram
+import ml.pytorch.generic
+from ml.pytorch.wordembedding.data import SkipGramDataset, TextData, Vocab
+from ml.pytorch.wordembedding.model import WordEmbSkipGram
 
 data = TextData()
 dataset = SkipGramDataset(data, torch.device("cpu"))
@@ -12,7 +12,7 @@ model = WordEmbSkipGram(vocab_size=data.vocab.size,
                         embedding_dim=16,
                         context_size=2,
                         hidden_layer_size=16)
-mlt.pytorch.generic.do_training(model, dataset, mlt.pytorch.generic.train, os.path.dirname(__file__),
+ml.pytorch.generic.do_training(model, dataset, ml.pytorch.generic.train, os.path.dirname(__file__),
                                        n_iter=5000, print_every=1000)
 
 max_words = 16

@@ -1,4 +1,4 @@
-from mlt.util import vector
+from ml.util import vector
 import numpy as np
 
 

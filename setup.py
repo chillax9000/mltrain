@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 setup(
-    name="mlt",
+    name="ml",
     version="0",
     packages=find_packages("src"),
     package_dir={"":"src"},
@@ -20,7 +20,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'nnt = mlt.pytorch.main:main',
+            'nnt = ml.pytorch.main:main',
         ]
     }
 )

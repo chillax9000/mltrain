@@ -2,15 +2,15 @@ from __future__ import unicode_literals, print_function, division
 
 import os
 
-import mlt.command
-from mlt.pytorch import modelbuilder
-from mlt.command import CmdArg
-from mlt.pytorch import serialize
-from mlt.pytorch import generic
+import ml.command
+from ml.pytorch import modelbuilder
+from ml.command import CmdArg
+from ml.pytorch import serialize
+from ml.pytorch import generic
 
 
 def main():
-    mode, args = mlt.command.create_parser_and_parse()
+    mode, args = ml.command.create_parser_and_parse()
     replace = args[CmdArg.replace] if mode == "train" else False
     serializer = serialize.ModelSerializer(os.path.dirname(__file__), replace=replace)
 

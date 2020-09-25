@@ -3,7 +3,7 @@ from typing import List
 import nltk
 import torch.utils.data
 
-import mlt.resources.wikipedia as wiki
+import ml.resources.wikipedia as wiki
 
 
 class Vocab:

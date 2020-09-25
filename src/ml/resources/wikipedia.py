@@ -2,14 +2,14 @@ import collections
 import enum
 import os
 from typing import Tuple, Iterable
-from mlt.util.text import get_sentences_from_text
+from ml.util.text import get_sentences_from_text
 
 import bs4
 import requests
 
 from simpleclock import Clock
 
-from mlt.resources import base_path
+from ml.resources import base_path
 
 import re
 
