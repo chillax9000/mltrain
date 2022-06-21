@@ -11,7 +11,7 @@ setup(
         'jupyter==1.0.0',
         'matplotlib==3.2.1',
         'nltk==3.5',
-        'numpy==1.18.4',
+        'numpy==1.22.0',
         'requests==2.23.0',
         'scikit-learn==0.23.1',
     ],
