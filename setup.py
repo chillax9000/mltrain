@@ -12,7 +12,7 @@ setup(
         'matplotlib==3.2.1',
         'nltk==3.5',
         'numpy==1.18.4',
-        'requests==2.23.0',
+        'requests==2.31.0',
         'scikit-learn==0.23.1',
     ],
     extras_require={
